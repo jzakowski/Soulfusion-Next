@@ -172,7 +172,7 @@ export default function UebernachtungenPage() {
                     {/* Guests Overlay */}
                     {showGuestsOverlay && (
                       <>
-                        <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setShowGuestsOverlay(false)} />
+                        <div className="fixed inset-0 z-40" onClick={() => setShowGuestsOverlay(false)} />
                         <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-3xl shadow-2xl p-6 w-96 z-50">
                           <h3 className="font-semibold mb-6 text-lg">Weiteres</h3>
 
