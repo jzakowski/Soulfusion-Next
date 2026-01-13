@@ -20,7 +20,7 @@ import { useUIStore } from "@/lib/stores/ui-store";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
 const navigation = [
-  { name: "Home", href: "/", icon: Home },
+  { name: "Home", href: "/app", icon: Home },
   { name: "Übernachtungen", href: "/uebernachtungen", icon: Bed },
   { name: "Club", href: "/club", icon: Users },
   { name: "Events", href: "/events", icon: Calendar },
@@ -44,7 +44,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/app" className="flex items-center gap-2">
           <span className="text-xl font-bold text-primary">SoulFusion</span>
         </Link>
       </header>
@@ -59,7 +59,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex h-full flex-col">
           {/* Sidebar Header */}
           <div className="flex h-16 items-center justify-between border-b px-6">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/app" className="flex items-center gap-2">
               <span className="text-xl font-bold text-primary">SoulFusion</span>
             </Link>
             <button

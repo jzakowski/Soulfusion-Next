@@ -36,7 +36,7 @@ function LoginPageContent() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !magicLinkToken) {
-      router.push("/");
+      router.push("/app");
     }
   }, [isAuthenticated, magicLinkToken, router]);
 
@@ -66,7 +66,7 @@ function LoginPageContent() {
         message: "Erfolgreich eingeloggt!",
         variant: "success",
       });
-      router.push("/");
+      router.push("/app");
     } catch (err) {
       setError("Ungültiger oder abgelaufener Magic Link");
       router.push("/auth/login");
