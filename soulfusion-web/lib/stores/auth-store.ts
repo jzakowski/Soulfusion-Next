@@ -35,11 +35,15 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      verifyMagicLink: async (token: string) => {
+      verifyMagicLink: async (token: string, email: string) => {
         set({ isLoading: true, error: undefined });
         try {
-          const { user, session_token } = await apiClient.verifyMagicLink(token);
-          set({ user, isAuthenticated: true, isLoading: false });
+          const result = await apiClient.verifyMagicLink(token, email);
+          if (result.ok) {
+            set({ user: result.user || { email }, isAuthenticated: true, isLoading: false });
+          } else {
+            throw new Error('Invalid token');
+          }
         } catch (error) {
           set({
             error: 'Failed to verify magic link',
