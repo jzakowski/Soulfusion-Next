@@ -40,7 +40,10 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const result = await apiClient.verifyMagicLink(token, email);
           if (result.ok) {
-            set({ user: result.user || { email }, isAuthenticated: true, isLoading: false });
+            // Load full user profile after successful magic link
+            const response = await apiClient.getProfile();
+            const user = response.user || response;
+            set({ user, isAuthenticated: true, isLoading: false });
           } else {
             throw new Error('Invalid token');
           }
@@ -71,7 +74,8 @@ export const useAuthStore = create<AuthStore>()(
       loadUser: async () => {
         set({ isLoading: true });
         try {
-          const user = await apiClient.getProfile();
+          const response = await apiClient.getProfile();
+          const user = response.user || response;
           set({ user, isAuthenticated: true, isLoading: false });
         } catch (error) {
           set({
