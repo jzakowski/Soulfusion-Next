@@ -4,11 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { AppLayout } from "@/components/layout/app-layout"
-import { Loader2 } from "lucide-react"
+import { Loader2, LogOut } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function AppPage() {
   const router = useRouter()
-  const { isAuthenticated, isLoading, loadUser, user } = useAuthStore()
+  const { isAuthenticated, isLoading, loadUser, logout, user } = useAuthStore()
   const [posts, setPosts] = useState<any[]>([])
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +23,7 @@ export default function AppPage() {
       setIsRefreshingUser(true)
       try {
         await loadUser()
-        console.log("User loaded successfully")
+        console.log("User loaded successfully", { user })
       } catch (err) {
         console.log("Not authenticated", err)
       } finally {
@@ -35,12 +36,12 @@ export default function AppPage() {
 
   // Redirect to landing if not authenticated
   useEffect(() => {
-    console.log("Auth check:", { isLoading, isAuthenticated, hasTriedAuth, hasUser: !!user })
+    console.log("Auth check:", { isLoading, isAuthenticated, hasTriedAuth, hasUser: !!user, userEmail: user?.email })
     if (hasTriedAuth && !isLoading && !isAuthenticated) {
       console.log("Redirecting to /")
       router.push("/")
     }
-  }, [isAuthenticated, isLoading, hasTriedAuth, router])
+  }, [isAuthenticated, isLoading, hasTriedAuth, router, user])
 
   // Load posts
   useEffect(() => {
@@ -65,12 +66,22 @@ export default function AppPage() {
     }
   }, [isAuthenticated])
 
+  const handleLogout = async () => {
+    await logout()
+    router.push("/")
+  }
+
   if (isLoading || isRefreshingUser) {
     return (
       <AppLayout>
-        <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="flex min-h-[50vh] items-center justify-center flex-col gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <span className="ml-2">{isLoading ? "Auth loading..." : "User loading..."}</span>
+          {user && (
+            <div className="text-sm text-muted-foreground">
+              User: {user.email} ({user.display_name})
+            </div>
+          )}
         </div>
       </AppLayout>
     )
@@ -79,7 +90,13 @@ export default function AppPage() {
   if (error) {
     return (
       <AppLayout>
-        <div className="p-8 text-center text-red-500">{error}</div>
+        <div className="p-8 text-center">
+          <p className="text-red-500 mb-4">{error}</p>
+          <Button onClick={handleLogout} variant="outline">
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
       </AppLayout>
     )
   }
@@ -98,9 +115,15 @@ export default function AppPage() {
   return (
     <AppLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Home</h1>
-          <p className="text-muted-foreground">{posts.length} Beiträge</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Home</h1>
+            <p className="text-muted-foreground">{posts.length} Beiträge</p>
+          </div>
+          <Button onClick={handleLogout} variant="outline" size="sm">
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
         </div>
 
         {posts.length === 0 ? (
