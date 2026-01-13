@@ -25,6 +25,13 @@ import {
 
 export default function LandingPage() {
   const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false)
+  const [comingSoonFeature, setComingSoonFeature] = useState("")
+
+  const handleFeatureClick = (featureName: string) => {
+    setComingSoonFeature(featureName)
+    setShowComingSoonDialog(true)
+  }
 
   return (
     <div className="min-h-screen">
@@ -72,11 +79,9 @@ export default function LandingPage() {
               Jetzt beitreten
               <ArrowRight className="h-5 w-5" />
             </Button>
-            <Link href="/events">
-              <Button size="lg" variant="outline" className="text-lg">
-                Events entdecken
-              </Button>
-            </Link>
+            <Button size="lg" variant="outline" className="text-lg" onClick={() => handleFeatureClick("Events")}>
+              Events entdecken
+            </Button>
           </div>
         </div>
       </section>
@@ -104,12 +109,10 @@ export default function LandingPage() {
                 <p className="mb-4 text-muted-foreground">
                   Finde Workshops, Retreats und Treffen in deiner Nähe. Lerne, wachse und vernetze dich.
                 </p>
-                <Link href="/events">
-                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
-                    Events ansehen
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button variant="ghost" className="gap-2 group-hover:bg-primary/10" onClick={() => handleFeatureClick("Events")}>
+                  Events ansehen
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
 
@@ -123,12 +126,10 @@ export default function LandingPage() {
                 <p className="mb-4 text-muted-foreground">
                   Finde ein Platz zum Übernachten oder biete dein Zuhause an. Gastfreundschaft pur.
                 </p>
-                <Link href="/uebernachtungen">
-                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
-                    Unterkünfte finden
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button variant="ghost" className="gap-2 group-hover:bg-primary/10" onClick={() => handleFeatureClick("Unterkünfte")}>
+                  Unterkünfte finden
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
 
@@ -142,12 +143,10 @@ export default function LandingPage() {
                 <p className="mb-4 text-muted-foreground">
                   Treffe Menschen mit ähnlichen Interessen in intimen Gruppen und tiefen Gesprächen.
                 </p>
-                <Link href="/bubbles">
-                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
-                    Bubbles entdecken
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button variant="ghost" className="gap-2 group-hover:bg-primary/10" onClick={() => handleFeatureClick("Bubbles")}>
+                  Bubbles entdecken
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
 
@@ -161,12 +160,10 @@ export default function LandingPage() {
                 <p className="mb-4 text-muted-foreground">
                   Finde besondere Verbindungen jenseits von Oberflächlichkeit. Ehrlich und authentisch.
                 </p>
-                <Link href="/dating">
-                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
-                    Dating entdecken
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button variant="ghost" className="gap-2 group-hover:bg-primary/10" onClick={() => handleFeatureClick("Dating")}>
+                  Dating entdecken
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
 
@@ -180,12 +177,10 @@ export default function LandingPage() {
                 <p className="mb-4 text-muted-foreground">
                   Entwickle dich weiter mit inspirierenden Workshops und Kursen. Wächst zusammen.
                 </p>
-                <Link href="/workshops">
-                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
-                    Workshops ansehen
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button variant="ghost" className="gap-2 group-hover:bg-primary/10" onClick={() => handleFeatureClick("Workshops")}>
+                  Workshops ansehen
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
 
@@ -199,12 +194,10 @@ export default function LandingPage() {
                 <p className="mb-4 text-muted-foreground">
                   Exklusive Veranstaltungen und besondere Erlebnisse für Mitglieder unserer Community.
                 </p>
-                <Link href="/club">
-                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
-                    Club entdecken
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button variant="ghost" className="gap-2 group-hover:bg-primary/10" onClick={() => handleFeatureClick("Club")}>
+                  Club entdecken
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -369,6 +362,53 @@ export default function LandingPage() {
             </Link>
             .
           </p>
+        </DialogContent>
+      </Dialog>
+
+      {/* Coming Soon Dialog */}
+      <Dialog open={showComingSoonDialog} onOpenChange={setShowComingSoonDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{comingSoonFeature} ist bald verfügbar!</DialogTitle>
+            <DialogDescription>
+              Wir arbeiten hart daran, dieses Feature so schnell wie möglich für dich bereitzustellen.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-6">
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                <Sparkles className="h-10 w-10 text-primary" />
+              </div>
+            </div>
+
+            <div className="space-y-4 text-center">
+              <p className="text-muted-foreground">
+                {comingSoonFeature === "Unterkünfte" &&
+                  "Biete bald deinen Wohnraum an oder finde eine gemütliche Unterkunft für deinen nächsten Aufenthalt."
+                }
+                {comingSoonFeature === "Events" &&
+                  "Entdecke demnächst inspirierende Workshops, Retreats und Community-Treffen in deiner Nähe."
+                }
+                {comingSoonFeature === "Bubbles" &&
+                  "Treffe bald Menschen mit ähnlichen Interessen in kleinen, intimen Gruppen."
+                }
+                {comingSoonFeature === "Dating" &&
+                  "Finde bald besondere Verbindungen jenseits von Oberflächlichkeit."
+                }
+                {comingSoonFeature === "Workshops" &&
+                  "Entwickle dich bald weiter mit inspirierenden Workshops und Kursen."
+                }
+                {comingSoonFeature === "Club" &&
+                  "Exklusive Veranstaltungen und besondere Erlebnisse kommen bald."
+                }
+              </p>
+
+              <Button className="w-full" onClick={() => setShowComingSoonDialog(false)}>
+                Verstanden
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
