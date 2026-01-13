@@ -86,7 +86,7 @@ export default function SettingsPage() {
       console.log("Profile updated:", response);
 
       // Update user in store
-      const updatedUser = { ...user, ...profileData };
+      const updatedUser = { ...user, ...profileData } as any;
       setUser(updatedUser);
 
       addToast({
