@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api/client';
 
 interface AuthStore extends AuthState {
   login: (email: string) => Promise<void>;
-  verifyMagicLink: (token: string) => Promise<void>;
+  verifyMagicLink: (token: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
   setUser: (user: User | null) => void;
