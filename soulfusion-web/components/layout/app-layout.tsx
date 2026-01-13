@@ -107,9 +107,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="border-t p-4">
             {user ? (
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  {user.display_name?.charAt(0).toUpperCase()}
-                </div>
+                {user.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.display_name || "User"}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    {user.display_name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="truncate text-sm font-medium">{user.display_name}</p>
                   <p className="truncate text-xs text-muted-foreground">{user.city || 'User'}</p>
