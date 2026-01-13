@@ -1,211 +1,293 @@
 "use client"
 
-import { useEffect } from "react";
-import { AppLayout } from "@/components/layout/app-layout";
-import { usePostsStore } from "@/lib/stores/posts-store";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/lib/stores/auth-store";
-import { Heart, MessageCircle, Bookmark, Share2, Loader2 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Calendar,
+  Home,
+  Users,
+  Heart,
+  Sparkles,
+  MessageCircle,
+  MapPin,
+  Star,
+  ArrowRight
+} from "lucide-react"
 
-export default function HomePage() {
-  const { posts, loading, fetchPosts, likePost, savePost } = usePostsStore();
-  const { user, isAuthenticated } = useAuthStore();
-
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
-  const handleLike = (postId: string) => {
-    if (!isAuthenticated) {
-      window.location.href = '/auth/login';
-      return;
-    }
-    likePost(postId);
-  };
-
-  const handleSave = (postId: string) => {
-    if (!isAuthenticated) {
-      window.location.href = '/auth/login';
-      return;
-    }
-    savePost(postId);
-  };
-
+export default function LandingPage() {
   return (
-    <AppLayout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Hero Section */}
-        <div className="mb-8 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 p-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-primary">Willkommen bei SoulFusion</h1>
-          <p className="text-muted-foreground">
-            Entdecke Events, Übernachtungen und gleichgesinnte Menschen
-          </p>
-        </div>
-
-        {/* Create Post Button */}
-        {isAuthenticated && (
-          <div className="mb-6 flex justify-end">
-            <Button asChild>
-              <Link href="/posts/create">Neuer Beitrag</Link>
-            </Button>
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold">SoulFusion</span>
           </div>
-        )}
+          <div className="flex items-center gap-4">
+            <Link href="/auth/login">
+              <Button variant="ghost">Anmelden</Button>
+            </Link>
+            <Link href="/auth/login">
+              <Button>Registrieren</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-        {/* Posts Feed */}
-        <div className="space-y-6">
-          {loading && posts.length === 0 ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : posts.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Noch keine Beiträge. Sei der Erste!</p>
+      {/* Hero Section */}
+      <section className="relative flex min-h-[90vh] items-center justify-center bg-gradient-to-b from-primary/10 via-background to-background px-4">
+        <div className="container max-w-5xl text-center">
+          <div className="mb-6 inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm text-primary">
+            ✨ Willkommen in der Community
+          </div>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+            Verbinde dich mit
+            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              {" "}gleichgesinnten Menschen
+            </span>
+          </h1>
+          <p className="mb-8 text-xl text-muted-foreground sm:text-2xl">
+            Entdecke Events, finde Unterkünfte, triff neue Leute – alles in einer Community, die dich wachsen lässt.
+          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Link href="/auth/login">
+              <Button size="lg" className="gap-2 text-lg">
+                Jetzt beitreten
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/events">
+              <Button size="lg" variant="outline" className="text-lg">
+                Events entdecken
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-24 px-4">
+        <div className="container max-w-6xl">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+              Alles für deine persönliche Reise
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Eine Plattform, die Menschen verbindet und Erfahrungen ermöglicht
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Events */}
+            <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">Events</h3>
+                <p className="mb-4 text-muted-foreground">
+                  Finde Workshops, Retreats und Treffen in deiner Nähe. Lerne, wachse und vernetze dich.
+                </p>
+                <Link href="/events">
+                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
+                    Events ansehen
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
-          ) : (
-            posts.map((post) => (
-              <Card key={post.id}>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      {post.author_display_name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">{post.author_display_name}</CardTitle>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(post.created_at).toLocaleDateString('de-DE')}
-                        {post.location && ` • ${post.location}`}
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {post.title && (
-                    <h3 className="mb-3 text-xl font-semibold">{post.title}</h3>
-                  )}
-                  {post.text && (
-                    <p className="mb-4 whitespace-pre-wrap">{post.text}</p>
-                  )}
 
-                  {/* Images */}
-                  {post.images.length > 0 && (
-                    <div className="mb-4 grid gap-2">
-                      {post.images.slice(0, 3).map((image, index) => (
-                        <div
-                          key={image.url}
-                          className={cn(
-                            "relative overflow-hidden rounded-md",
-                            post.images.length === 1
-                              ? "aspect-video"
-                              : post.images.length === 2
-                              ? "aspect-[2/1]"
-                              : "aspect-square"
-                          )}
-                        >
-                          <Image
-                            src={image.url}
-                            alt={`Bild ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            {/* Unterkünfte */}
+            <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Home className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">Unterkünfte</h3>
+                <p className="mb-4 text-muted-foreground">
+                  Finde ein Platz zum Übernachten oder biete dein Zuhause an. Gastfreundschaft pur.
+                </p>
+                <Link href="/uebernachtungen">
+                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
+                    Unterkünfte finden
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-                  {/* Video/Audio placeholders */}
-                  {post.video_url && (
-                    <div className="mb-4 flex aspect-video items-center justify-center rounded-md bg-muted">
-                      <p className="text-sm text-muted-foreground">Video (Coming Soon)</p>
-                    </div>
-                  )}
-                  {post.audio_url && (
-                    <div className="mb-4 flex items-center gap-2 rounded-md bg-muted p-4">
-                      <div className="h-8 w-8 rounded-full bg-primary/20" />
-                      <p className="text-sm text-muted-foreground">Audio Nachricht</p>
-                    </div>
-                  )}
+            {/* Bubbles */}
+            <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">Bubbles</h3>
+                <p className="mb-4 text-muted-foreground">
+                  Treffe Menschen mit ähnlichen Interessen in intimen Gruppen und tiefen Gesprächen.
+                </p>
+                <Link href="/bubbles">
+                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
+                    Bubbles entdecken
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-                  {/* Tags */}
-                  {post.tags.length > 0 && (
-                    <div className="mb-4 flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-secondary px-3 py-1 text-xs"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+            {/* Dating */}
+            <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Heart className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">Dating</h3>
+                <p className="mb-4 text-muted-foreground">
+                  Finde besondere Verbindungen jenseits von Oberflächlichkeit. Ehrlich und authentisch.
+                </p>
+                <Link href="/dating">
+                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
+                    Dating entdecken
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-4 border-t pt-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleLike(post.id)}
-                      className={cn(
-                        "gap-2",
-                        post.is_liked_by_me && "text-red-500"
-                      )}
-                    >
-                      <Heart className={cn("h-5 w-5", post.is_liked_by_me && "fill-current")} />
-                      <span>{post.likes_count}</span>
-                    </Button>
-                    <Button variant="ghost" size="sm" className="gap-2" asChild>
-                      <Link href={`/beitraege/${post.id}`}>
-                        <MessageCircle className="h-5 w-5" />
-                        <span>{post.comments_count}</span>
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleSave(post.id)}
-                      className={cn("gap-2", post.is_saved_by_me && "text-primary")}
-                    >
-                      <Bookmark className={cn("h-5 w-5", post.is_saved_by_me && "fill-current")} />
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <Share2 className="h-5 w-5" />
-                    </Button>
-                  </div>
+            {/* Workshops */}
+            <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">Workshops</h3>
+                <p className="mb-4 text-muted-foreground">
+                  Entwickle dich weiter mit inspirierenden Workshops und Kursen. Wächst zusammen.
+                </p>
+                <Link href="/workshops">
+                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
+                    Workshops ansehen
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
-                  {/* Bubble Badge */}
-                  {post.bubble_name && (
-                    <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs" style={{ backgroundColor: post.bubble_color }}>
-                      {post.bubble_name}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-
-        {/* Load More */}
-        {posts.length > 0 && !loading && (
-          <div className="mt-8 flex justify-center">
-            <Button
-              variant="outline"
-              onClick={() => fetchPosts({ cursor: usePostsStore.getState().nextCursor || undefined })}
-              disabled={!usePostsStore.getState().hasMore}
-            >
-              Mehr laden
-            </Button>
+            {/* Club */}
+            <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <MessageCircle className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">Club</h3>
+                <p className="mb-4 text-muted-foreground">
+                  Exklusive Veranstaltungen und besondere Erlebnisse für Mitglieder unserer Community.
+                </p>
+                <Link href="/club">
+                  <Button variant="ghost" className="gap-2 group-hover:bg-primary/10">
+                    Club entdecken
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </div>
-    </AppLayout>
-  );
-}
+        </div>
+      </section>
 
-function cn(...classes: (string | boolean | undefined | null)[]) {
-  return classes.filter(Boolean).join(" ");
+      {/* Community Section */}
+      <section className="bg-primary/5 py-24 px-4">
+        <div className="container max-w-5xl text-center">
+          <h2 className="mb-6 text-3xl font-bold sm:text-4xl">
+            Teil einer wachsenden Community
+          </h2>
+          <p className="mb-12 text-lg text-muted-foreground">
+            Verbinde dich mit Menschen, die ähnliche Werte teilen und gemeinsam an sich selbst wachsen wollen.
+          </p>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="flex flex-col items-center">
+              <div className="mb-4 text-4xl font-bold text-primary">1000+</div>
+              <div className="text-muted-foreground">Mitglieder</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="mb-4 text-4xl font-bold text-primary">50+</div>
+              <div className="text-muted-foreground">Events pro Monat</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="mb-4 text-4xl font-bold text-primary">20+</div>
+              <div className="text-muted-foreground">Standorte</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-4">
+        <div className="container max-w-3xl text-center">
+          <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-12 text-primary-foreground">
+            <h2 className="mb-4 text-3xl font-bold">
+              Bereit, dich zu verbinden?
+            </h2>
+            <p className="mb-8 text-lg opacity-90">
+              Schließe dich Tausenden von Menschen an, die gemeinsam an sich selbst wachsen und echte Verbindungen suchen.
+            </p>
+            <Link href="/auth/login">
+              <Button size="lg" variant="secondary" className="gap-2 text-lg">
+                Jetzt kostenlos registrieren
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-12 px-4">
+        <div className="container max-w-6xl">
+          <div className="grid gap-8 md:grid-cols-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <span className="font-bold">SoulFusion</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Eine Community für persönliches Wachstum und echte Verbindungen.
+              </p>
+            </div>
+            <div>
+              <h3 className="mb-4 font-semibold">Entdecken</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/events" className="text-muted-foreground hover:text-primary">Events</Link></li>
+                <li><Link href="/uebernachtungen" className="text-muted-foreground hover:text-primary">Unterkünfte</Link></li>
+                <li><Link href="/bubbles" className="text-muted-foreground hover:text-primary">Bubbles</Link></li>
+                <li><Link href="/dating" className="text-muted-foreground hover:text-primary">Dating</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="mb-4 font-semibold">Community</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/workshops" className="text-muted-foreground hover:text-primary">Workshops</Link></li>
+                <li><Link href="/club" className="text-muted-foreground hover:text-primary">Club</Link></li>
+                <li><Link href="/beitraege" className="text-muted-foreground hover:text-primary">Beiträge</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="mb-4 font-semibold">Rechtliches</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/impressum" className="text-muted-foreground hover:text-primary">Impressum</Link></li>
+                <li><Link href="/datenschutz" className="text-muted-foreground hover:text-primary">Datenschutz</Link></li>
+                <li><Link href="/agb" className="text-muted-foreground hover:text-primary">AGB</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} SoulFusion. Alle Rechte vorbehalten.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
 }
