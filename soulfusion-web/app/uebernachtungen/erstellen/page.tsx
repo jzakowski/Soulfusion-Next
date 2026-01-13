@@ -619,7 +619,7 @@ export default function CreateAccommodationPage() {
                     <div className="flex items-center gap-3">
                       <Checkbox
                         checked={formData.private_bathroom}
-                        onChange={(e) => setFormData({ ...formData, private_bathroom: e.target.checked })}
+                        onCheckedChange={(checked) => setFormData({ ...formData, private_bathroom: checked })}
                       />
                       <div>
                         <p className="font-medium">Eigenes Badezimmer</p>
@@ -632,7 +632,7 @@ export default function CreateAccommodationPage() {
                     <div className="flex items-center gap-3">
                       <Checkbox
                         checked={formData.washing_machine_allowed}
-                        onChange={(e) => setFormData({ ...formData, washing_machine_allowed: e.target.checked })}
+                        onCheckedChange={(checked) => setFormData({ ...formData, washing_machine_allowed: checked })}
                       />
                       <div>
                         <p className="font-medium">Waschmaschine nutzbar</p>
@@ -645,7 +645,7 @@ export default function CreateAccommodationPage() {
                     <div className="flex items-center gap-3">
                       <Checkbox
                         checked={formData.home_office_allowed}
-                        onChange={(e) => setFormData({ ...formData, home_office_allowed: e.target.checked })}
+                        onCheckedChange={(checked) => setFormData({ ...formData, home_office_allowed: checked })}
                       />
                       <div>
                         <p className="font-medium">Als Homeoffice nutzbar</p>
