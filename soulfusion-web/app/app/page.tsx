@@ -13,6 +13,7 @@ interface Post {
   id: string
   content?: string
   text?: string
+  type?: string
   author?: {
     id?: string
     display_name?: string
@@ -20,7 +21,10 @@ interface Post {
   }
   author_name?: string
   author_id?: string
-  created_at: string
+  user_id?: string
+  created_at?: string
+  updated_at?: string
+  created_date?: string
   likes_count?: number
   comments_count?: number
   is_liked?: boolean
@@ -155,13 +159,19 @@ export default function AppPage() {
                       {post.author?.display_name || post.author_name || "Anonymous"}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(post.created_at).toLocaleDateString("de-DE", {
+                      {post.created_at ? new Date(post.created_at).toLocaleDateString("de-DE", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
-                      })}
+                      }) : post.updated_at ? new Date(post.updated_at).toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }) : "Kein Datum"}
                     </p>
                   </div>
                 </CardHeader>
