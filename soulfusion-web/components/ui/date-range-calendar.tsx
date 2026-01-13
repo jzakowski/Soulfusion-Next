@@ -74,24 +74,6 @@ export function DateRangeCalendar({ startDate, endDate, onSelect, onClose }: Dat
                   return format(date, "MMMM yyyy", { locale: de })
                 },
               }}
-              styles={{
-                caption: { text: "left" as const },
-                caption_label: { fontWeight: "700", fontSize: "18px" },
-                head_cell: { fontSize: "14px", fontWeight: "600" },
-                cell: { fontSize: "16px" },
-                day: { fontSize: "16px" },
-                day_selected: {
-                  backgroundColor: "#EC4899",
-                  color: "white",
-                  fontWeight: "600",
-                },
-                day_range_middle: {
-                  backgroundColor: "#F9A8D4",
-                  color: "#EC4899",
-                },
-                day_today: {},
-                day_disabled: { color: "#9CA3AF" },
-              }}
               classNames={{
                 months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                 month: "space-y-4",
@@ -128,24 +110,6 @@ export function DateRangeCalendar({ startDate, endDate, onSelect, onClose }: Dat
                 formatCaption: (date, options) => {
                   return format(date, "MMMM yyyy", { locale: de })
                 },
-              }}
-              styles={{
-                caption: { text: "left" as const },
-                caption_label: { fontWeight: "700", fontSize: "18px" },
-                head_cell: { fontSize: "14px", fontWeight: "600" },
-                cell: { fontSize: "16px" },
-                day: { fontSize: "16px" },
-                day_selected: {
-                  backgroundColor: "#EC4899",
-                  color: "white",
-                  fontWeight: "600",
-                },
-                day_range_middle: {
-                  backgroundColor: "#F9A8D4",
-                  color: "#EC4899",
-                },
-                day_today: {},
-                day_disabled: { color: "#9CA3AF" },
               }}
               classNames={{
                 months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",

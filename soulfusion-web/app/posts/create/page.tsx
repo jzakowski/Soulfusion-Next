@@ -198,9 +198,10 @@ export default function CreatePostPage() {
   };
 
   const canProceed = () => {
+    if (!formData) return false;
     switch (currentStep) {
       case "content":
-        return formData.text?.trim().length > 0 || formData.title?.trim().length > 0;
+        return (formData.text?.trim()?.length || 0) > 0 || (formData.title?.trim()?.length || 0) > 0;
       case "media":
         return true; // Media is optional
       case "details":
