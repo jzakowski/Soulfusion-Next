@@ -29,9 +29,10 @@ interface Post {
 
 export default function AppPage() {
   const router = useRouter()
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const { isAuthenticated, isLoading, user } = useAuthStore()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Redirect to landing if not authenticated
   useEffect(() => {
@@ -44,15 +45,20 @@ export default function AppPage() {
   useEffect(() => {
     if (isAuthenticated) {
       loadPosts()
+    } else {
+      setIsLoadingPosts(false)
     }
   }, [isAuthenticated])
 
   const loadPosts = async () => {
     try {
+      console.log("Loading posts...")
       const response = await apiClient.getPosts()
-      setPosts(response.items || [])
+      console.log("Posts response:", response)
+      setPosts(response.items || response || [])
     } catch (error) {
       console.error("Failed to load posts:", error)
+      setError("Beiträge konnten nicht geladen werden")
     } finally {
       setIsLoadingPosts(false)
     }
@@ -106,7 +112,14 @@ export default function AppPage() {
           <p className="text-muted-foreground">Willkommen zurück! Hier ist dein Feed.</p>
         </div>
 
-        {isLoadingPosts ? (
+        {error ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-destructive mb-4">{error}</p>
+              <Button onClick={loadPosts}>Erneut versuchen</Button>
+            </CardContent>
+          </Card>
+        ) : isLoadingPosts ? (
           <div className="flex min-h-[50vh] items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
