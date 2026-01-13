@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthStore>()(
           if (result.ok) {
             // Load full user profile after successful magic link
             const response = await apiClient.getProfile();
-            const user = response.user || response;
+            const user = response.profile || response.user || response;
             set({ user, isAuthenticated: true, isLoading: false });
           } else {
             throw new Error('Invalid token');
@@ -76,7 +76,7 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const response = await apiClient.getProfile();
           console.log("loadUser - API response:", response);
-          const user = response.user || response;
+          const user = response.profile || response.user || response;
           console.log("loadUser - Extracted user:", user);
           set({ user, isAuthenticated: true, isLoading: false });
           console.log("loadUser - User set in store");
