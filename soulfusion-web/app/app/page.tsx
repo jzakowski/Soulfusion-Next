@@ -11,12 +11,15 @@ import { apiClient } from "@/lib/api/client"
 
 interface Post {
   id: string
-  content: string
-  author: {
-    id: string
-    display_name: string
+  content?: string
+  text?: string
+  author?: {
+    id?: string
+    display_name?: string
     avatar_url?: string
   }
+  author_name?: string
+  author_id?: string
   created_at: string
   likes_count?: number
   comments_count?: number
@@ -130,7 +133,7 @@ export default function AppPage() {
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-sm font-medium">
-                      {post.author.display_name || "Anonymous"}
+                      {post.author?.display_name || post.author_name || "Anonymous"}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
                       {new Date(post.created_at).toLocaleDateString("de-DE", {
@@ -144,7 +147,7 @@ export default function AppPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="mb-4 whitespace-pre-wrap">{post.content}</p>
+                  <p className="mb-4 whitespace-pre-wrap">{post.content || post.text || ""}</p>
                   <div className="flex items-center gap-4 border-t pt-4">
                     <Button
                       variant="ghost"
