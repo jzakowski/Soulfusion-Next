@@ -69,7 +69,7 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="py-24 px-4">
-        <div className="container max-w-6xl">
+        <div className="mx-auto max-w-2xl">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
               Alles für deine persönliche Reise
@@ -79,7 +79,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="mx-auto grid max-w-2xl gap-6 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2">
             {/* Events */}
             <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
               <CardContent className="p-6">
