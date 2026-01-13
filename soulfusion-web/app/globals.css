@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Soulmatch Light Theme */
+    --background: 220 20% 98%;
+    --foreground: 0 0% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
+    --primary: 270 47% 17%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 189 87% 24%;
+    --secondary-foreground: 0 0% 100%;
+    --tertiary: 171 77% 47%;
+    --tertiary-foreground: 0 0% 100%;
+    --highlight: 84 79% 55%;
+    --highlight-foreground: 0 0% 13%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 171 77% 47%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 122 39% 49%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 13%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 270 47% 17%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Soulmatch Dark Theme */
+    --background: 240 10% 5%;
+    --foreground: 0 0% 100%;
+    --card: 240 8% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 8% 12%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 265 100% 68%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 178 100% 38%;
+    --secondary-foreground: 0 0% 100%;
+    --tertiary: 171 77% 47%;
+    --tertiary-foreground: 0 0% 13%;
+    --highlight: 84 79% 55%;
+    --highlight-foreground: 0 0% 13%;
+    --muted: 240 8% 12%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 265 100% 68%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 122 39% 49%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 13%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 265 100% 68%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+}
