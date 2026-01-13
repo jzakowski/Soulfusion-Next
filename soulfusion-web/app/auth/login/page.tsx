@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { useUIStore } from "@/lib/stores/ui-store";
 import { Mail, Loader2, CheckCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const magicLinkToken = searchParams.get("token");
@@ -147,5 +147,20 @@ export default function LoginPage() {
         </Card>
       </div>
     </AppLayout>
+  );
+}
+
+// Wrap with Suspense to avoid useSearchParams SSR issue
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <AppLayout>
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    }>
+      <LoginPageContent />
+    </Suspense>
   );
 }
