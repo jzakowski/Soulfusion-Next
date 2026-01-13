@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bed, MapPin, Users, Star, Filter, Loader2, Search, Calendar, Group, Heart, Plus, User, MapPin as MapPinIcon, X } from "lucide-react";
+import { AccommodationsFooter } from "@/components/accommodations-footer";
+import { GuestGuidelinesDialog } from "@/components/guest-guidelines-dialog";
+import { Bed, MapPin, Users, Star, Filter, Loader2, Search, Calendar, Group, Heart, Plus, User, MapPin as MapPinIcon, X, Dog, Baby, Utensils, Cigarette, CigaretteOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { DateRangeCalendar } from "@/components/ui/date-range-calendar";
@@ -58,6 +60,7 @@ export default function UebernachtungenPage() {
   const [showLocationInput, setShowLocationInput] = useState(false);
   const [showGuestsOverlay, setShowGuestsOverlay] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showGuestGuidelines, setShowGuestGuidelines] = useState(false);
 
   useEffect(() => {
     fetchAccommodations();
@@ -118,23 +121,23 @@ export default function UebernachtungenPage() {
           <div className="container mx-auto px-4 py-6">
             <div className="max-w-5xl mx-auto">
               <div className="bg-white rounded-[3rem] shadow-lg border p-4">
-                <div className="flex flex-wrap items-center gap-3 md:gap-4">
+                <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
                   {/* Location */}
-                  <div className="relative">
+                  <div className="relative flex-1 min-w-[140px]">
                     <button
                       onClick={() => setShowLocationInput(!showLocationInput)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-2xl min-w-[140px]"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl w-full"
                     >
-                      <MapPinIcon className="h-5 w-5 text-muted-foreground" />
-                      <div className="text-left">
+                      <MapPinIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="text-left flex-1">
                         <p className="text-xs font-semibold">Wohin</p>
-                        <p className="text-sm truncate max-w-[100px]">
+                        <p className="text-sm truncate">
                           {filterState.locationQuery || 'Irgendwo'}
                         </p>
                       </div>
                     </button>
                     {showLocationInput && (
-                      <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
                         <Input
                           placeholder="Ort eingeben"
                           value={filterState.locationQuery}
@@ -147,18 +150,16 @@ export default function UebernachtungenPage() {
                     )}
                   </div>
 
-                  <div className="hidden md:block w-px h-10 bg-border/50" />
-
                   {/* Date Range - Opens calendar with range selection */}
-                  <div className="relative">
+                  <div className="relative flex-1 min-w-[160px]">
                     <button
                       onClick={() => setShowCalendar(!showCalendar)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-2xl"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl w-full"
                     >
-                      <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div className="text-left">
+                      <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="text-left flex-1">
                         <p className="text-xs font-semibold">Anreise - Abreise</p>
-                        <p className="text-sm">
+                        <p className="text-sm truncate">
                           {filterState.startDate && filterState.endDate
                             ? `${formatDateDisplay(filterState.startDate)} - ${formatDateDisplay(filterState.endDate)}`
                             : filterState.startDate
@@ -172,7 +173,7 @@ export default function UebernachtungenPage() {
                     {showCalendar && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setShowCalendar(false)} />
-                        <div className="absolute top-full left-0 mt-3 z-50">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 z-50">
                           <DateRangeCalendar
                             startDate={filterState.startDate}
                             endDate={filterState.endDate}
@@ -184,16 +185,14 @@ export default function UebernachtungenPage() {
                     )}
                   </div>
 
-                  <div className="hidden md:block w-px h-10 bg-border/50" />
-
                   {/* Guests */}
-                  <div className="relative">
+                  <div className="relative flex-1 min-w-[120px]">
                     <button
                       onClick={() => setShowGuestsOverlay(!showGuestsOverlay)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-2xl"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl w-full"
                     >
-                      <Group className="h-5 w-5 text-muted-foreground" />
-                      <div className="text-left">
+                      <Group className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="text-left flex-1">
                         <p className="text-xs font-semibold">Weiteres</p>
                         <p className="text-sm">{totalGuests} {totalGuests === 1 ? 'Gast' : 'Gäste'}</p>
                       </div>
@@ -203,7 +202,7 @@ export default function UebernachtungenPage() {
                     {showGuestsOverlay && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setShowGuestsOverlay(false)} />
-                        <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-3xl shadow-2xl p-6 w-96 z-50">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white border-2 rounded-3xl shadow-2xl p-6 w-96 z-50">
                           <h3 className="font-semibold mb-6 text-lg">Weiteres</h3>
 
                           {/* Adults */}
@@ -274,10 +273,8 @@ export default function UebernachtungenPage() {
                     )}
                   </div>
 
-                  <div className="flex-1" />
-
                   {/* Search Button */}
-                  <Button size="lg" className="rounded-full px-8 h-14 text-base">
+                  <Button size="lg" className="rounded-full px-8 h-14 text-base flex-shrink-0">
                     <Search className="h-5 w-5 mr-2" />
                     Suchen
                   </Button>
@@ -305,7 +302,7 @@ export default function UebernachtungenPage() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {accommodations.map((accommodation) => (
-                <Card key={accommodation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <Card key={accommodation.id} className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
                   {accommodation.images.length > 0 && (
                     <div className="relative aspect-video">
                       <Image
@@ -314,6 +311,29 @@ export default function UebernachtungenPage() {
                         fill
                         className="object-cover"
                       />
+                      {/* Host overlay on image */}
+                      <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-2 py-1.5 shadow-md">
+                        {accommodation.host_avatar_url ? (
+                          <Image
+                            src={accommodation.host_avatar_url}
+                            alt={accommodation.host_name}
+                            width={32}
+                            height={32}
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                            {accommodation.host_name.charAt(0)}
+                          </div>
+                        )}
+                        <span className="text-sm font-medium">{accommodation.host_name}</span>
+                        {accommodation.host_rating && (
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm">{accommodation.host_rating}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                   <CardHeader>
@@ -322,8 +342,27 @@ export default function UebernachtungenPage() {
                       <MapPin className="h-4 w-4" />
                       {accommodation.location_city}
                     </p>
+                    {/* Host info below location when no image */}
+                    {accommodation.images.length === 0 && (
+                      <div className="flex items-center gap-2 mt-2">
+                        {accommodation.host_avatar_url ? (
+                          <Image
+                            src={accommodation.host_avatar_url}
+                            alt={accommodation.host_name}
+                            width={24}
+                            height={24}
+                            className="h-6 w-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                            {accommodation.host_name.charAt(0)}
+                          </div>
+                        )}
+                        <span className="text-sm text-muted-foreground">{accommodation.host_name}</span>
+                      </div>
+                    )}
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex flex-col flex-1">
                     <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
                       {accommodation.description}
                     </p>
@@ -342,33 +381,61 @@ export default function UebernachtungenPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {!accommodation.host_avatar_url && (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">
-                            {accommodation.host_name.charAt(0)}
-                          </div>
-                        )}
-                        <span className="text-sm text-muted-foreground">
-                          {accommodation.host_name}
-                        </span>
+                    {/* Amenities */}
+                    {accommodation.amenities && accommodation.amenities.length > 0 && (
+                      <div className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        {accommodation.amenities
+                          .filter(a => a.category === 'other' && a.available)
+                          .slice(0, 4)
+                          .map((amenity, idx) => {
+                            const IconComponent =
+                              amenity.name.includes('Haustier') ? Dog :
+                              amenity.name.includes('Kinder') ? Baby :
+                              amenity.name.includes('Abendessen') || amenity.name.includes('Essen') ? Utensils :
+                              null;
+                            return IconComponent ? (
+                              <span key={idx} className="flex items-center gap-1">
+                                <IconComponent className="h-3 w-3" />
+                                {amenity.name}
+                              </span>
+                            ) : null;
+                          })}
                       </div>
-                      {accommodation.host_rating && (
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm">{accommodation.host_rating}</span>
-                        </div>
-                      )}
-                    </div>
+                    )}
+
+                    {/* House Rules - Smoking */}
+                    {accommodation.house_rules && accommodation.house_rules.length > 0 && (
+                      <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        {accommodation.house_rules.some(rule =>
+                          rule.toLowerCase().includes('rauch') || rule.toLowerCase().includes('smoke')
+                        ) && (
+                          <span className="flex items-center gap-1">
+                            {accommodation.house_rules.some(rule =>
+                              rule.toLowerCase().includes('nicht') || rule.toLowerCase().includes('kein')
+                            ) ? (
+                              <>
+                                <CigaretteOff className="h-3 w-3" />
+                                Nichtraucher
+                              </>
+                            ) : (
+                            <>
+                              <Cigarette className="h-3 w-3" />
+                              Rauchen erlaubt
+                            </>
+                          )}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {accommodation.max_guests && (
-                      <p className="mt-2 text-sm text-muted-foreground">
+                      <p className="mt-2 mb-4 text-sm text-muted-foreground">
                         <Users className="mr-1 inline h-3 w-3" />
                         Bis zu {accommodation.max_guests} Gäste
                       </p>
                     )}
 
-                    <Button className="mt-4 w-full" asChild>
+                    <Button className="mt-auto w-full" asChild>
                       <Link href={`/uebernachtungen/${accommodation.id}`}>
                         Ansehen
                       </Link>
@@ -379,7 +446,13 @@ export default function UebernachtungenPage() {
             </div>
           )}
         </div>
+
+        {/* Footer */}
+        <AccommodationsFooter onGuestGuidelinesClick={() => setShowGuestGuidelines(true)} />
       </div>
+
+      {/* Guest Guidelines Dialog */}
+      <GuestGuidelinesDialog open={showGuestGuidelines} onOpenChange={setShowGuestGuidelines} />
     </AppLayout>
   );
 }

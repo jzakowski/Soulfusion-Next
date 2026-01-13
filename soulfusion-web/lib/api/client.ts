@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://api.soul-fusion.de';
+// Use relative URL to go through Next.js rewrite proxy
+const API_BASE = '';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -125,17 +126,17 @@ class ApiClient {
 
   // Accommodations
   async getAccommodations(params?: any): Promise<any> {
-    const response = await this.client.get('/uebernachtungen', { params });
+    const response = await this.client.get('/api/unterkuenfte', { params });
     return response.data;
   }
 
   async getAccommodation(id: string): Promise<any> {
-    const response = await this.client.get(`/uebernachtungen/${id}`);
+    const response = await this.client.get(`/api/unterkuenfte/${id}`);
     return response.data;
   }
 
   async createAccommodation(data: any): Promise<any> {
-    const response = await this.client.post('/uebernachtungen', data);
+    const response = await this.client.post('/api/unterkuenfte', data);
     return response.data;
   }
 
@@ -156,6 +157,15 @@ class ApiClient {
   async getPresignedUploadUrl(postId: string, fileName: string, fileType: 'image' | 'video' | 'audio'): Promise<any> {
     const response = await this.client.post('/upload/beitraege', {
       post_id: postId,
+      file_name: fileName,
+      file_type: fileType,
+    });
+    return response.data;
+  }
+
+  // Upload for accommodations
+  async getAccommodationUploadUrl(fileName: string, fileType: string): Promise<{ upload_url: string; file_url: string }> {
+    const response = await this.client.post('/unterkuenfte/upload/presigned', {
       file_name: fileName,
       file_type: fileType,
     });

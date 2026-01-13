@@ -81,4 +81,9 @@ export interface CreateAccommodationData {
   amenities: AccommodationAmenity[];
   house_rules?: string[];
   price_note?: string;
+  main_image_url?: string;
+  gallery_urls?: string[];
+  private_bathroom?: boolean;
+  washing_machine_allowed?: boolean;
+  home_office_allowed?: boolean;
 }
