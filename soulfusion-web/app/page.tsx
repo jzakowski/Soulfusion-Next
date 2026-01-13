@@ -79,7 +79,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Events */}
             <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
               <CardContent className="p-6">
@@ -246,10 +246,10 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t py-12 px-4">
-        <div className="container max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-4">
+        <div className="container max-w-4xl">
+          <div className="mx-auto grid max-w-3xl gap-8 md:grid-cols-2 text-center">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="font-bold">SoulFusion</span>
               </div>
