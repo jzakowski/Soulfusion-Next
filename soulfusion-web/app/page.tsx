@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { apiClient } from "@/lib/api/client"
 import {
   Dialog,
   DialogContent,
@@ -27,10 +28,37 @@ export default function LandingPage() {
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [showComingSoonDialog, setShowComingSoonDialog] = useState(false)
   const [comingSoonFeature, setComingSoonFeature] = useState("")
+  const [email, setEmail] = useState("")
+  const [isSending, setIsSending] = useState(false)
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [magicLinkError, setMagicLinkError] = useState("")
 
   const handleFeatureClick = (featureName: string) => {
     setComingSoonFeature(featureName)
     setShowComingSoonDialog(true)
+  }
+
+  const handleSendMagicLink = async () => {
+    if (!email || !email.includes("@")) {
+      setMagicLinkError("Bitte gib eine gültige E-Mail-Adresse ein.")
+      return
+    }
+
+    setIsSending(true)
+    setMagicLinkError("")
+
+    try {
+      const result = await apiClient.login(email)
+      if (result.success) {
+        setMagicLinkSent(true)
+      } else {
+        setMagicLinkError(result.message || "Etwas ist schiefgelaufen. Bitte versuche es später erneut.")
+      }
+    } catch (error) {
+      setMagicLinkError("Etwas ist schiefgelaufen. Bitte versuche es später erneut.")
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (
@@ -295,7 +323,15 @@ export default function LandingPage() {
       </footer>
 
       {/* Login/Register Dialog */}
-      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+      <Dialog open={showLoginDialog} onOpenChange={(open) => {
+        if (!open) {
+          // Reset states when dialog closes
+          setEmail("")
+          setMagicLinkSent(false)
+          setMagicLinkError("")
+        }
+        setShowLoginDialog(open)
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Willkommen bei SoulFusion</DialogTitle>
@@ -305,34 +341,73 @@ export default function LandingPage() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                E-Mail
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="deine@email.de"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              />
-            </div>
-
-            <Button className="w-full" size="lg">
-              Magic Link senden
-            </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+            {magicLinkSent ? (
+              <div className="py-8 text-center">
+                <div className="mb-4 flex justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                    <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="mb-2 text-lg font-semibold">Magic Link versendet!</h3>
+                <p className="text-sm text-muted-foreground">
+                  Wir haben einen Magic Link an <strong>{email}</strong> geschickt. Prüfe deinen Posteingang.
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => {
+                    setMagicLinkSent(false)
+                    setEmail("")
+                  }}
+                >
+                  Weitere E-Mail verwenden
+                </Button>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Oder
-                </span>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium">
+                    E-Mail
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="deine@email.de"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                  {magicLinkError && (
+                    <p className="text-sm text-red-500">{magicLinkError}</p>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={handleSendMagicLink}
+                  disabled={isSending}
+                >
+                  {isSending ? "Wird gesendet..." : "Magic Link senden"}
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Oder
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {!magicLinkSent && (
+              <div className="grid grid-cols-2 gap-4">
               <Button variant="outline" className="w-full gap-2">
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -349,6 +424,7 @@ export default function LandingPage() {
                 Apple
               </Button>
             </div>
+            )}
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
