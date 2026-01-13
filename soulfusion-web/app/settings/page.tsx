@@ -85,9 +85,10 @@ export default function SettingsPage() {
       const response = await apiClient.updateProfile(profileData);
       console.log("Profile updated:", response);
 
-      // Update user in store
-      const updatedUser = { ...user, ...profileData } as any;
-      setUser(updatedUser);
+      // Reload user from server to get fresh data
+      const profileResponse = await apiClient.getProfile();
+      const freshUser = profileResponse.profile || profileResponse.user || profileResponse;
+      setUser(freshUser as any);
 
       addToast({
         message: "Profil erfolgreich aktualisiert!",
