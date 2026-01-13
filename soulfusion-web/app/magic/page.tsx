@@ -1,47 +1,20 @@
-"use client"
+import { redirect } from 'next/navigation'
 
-import { useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
-function MagicPageContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+export default function MagicPage({
+  searchParams,
+}: {
+  searchParams: { token?: string; email?: string }
+}) {
+  const token = searchParams.token
+  const email = searchParams.email
 
-  useEffect(() => {
-    const token = searchParams.get('token')
-    const email = searchParams.get('email')
+  if (!token || !email) {
+    redirect('/?error=invalid_magic_link')
+  }
 
-    // Redirect if no token or email
-    if (!token || !email) {
-      router.push('/?error=invalid_magic_link')
-      return
-    }
-
-    // Redirect to login page with params for verification
-    router.push(`/auth/login?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`)
-  }, [searchParams, router])
-
-  // Show loading while redirecting
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-        <p className="text-muted-foreground">Wird weitergeleitet...</p>
-      </div>
-    </div>
-  )
-}
-
-// Wrap with Suspense to avoid useSearchParams SSR issue
-export default function MagicPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    }>
-      <MagicPageContent />
-    </Suspense>
-  )
+  // Redirect to login page with params for verification
+  redirect(`/auth/login?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`)
 }
