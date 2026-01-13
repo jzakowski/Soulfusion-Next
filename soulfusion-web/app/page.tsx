@@ -20,7 +20,7 @@ export default function LandingPage() {
     <div className="min-h-screen">
       {/* Navigation */}
       <nav className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">SoulFusion</span>
@@ -38,7 +38,7 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative flex min-h-[90vh] items-center justify-center bg-gradient-to-b from-primary/10 via-background to-background px-4">
-        <div className="container max-w-5xl text-center">
+        <div className="mx-auto max-w-5xl text-center">
           <div className="mb-6 inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm text-primary">
             ✨ Willkommen in der Community
           </div>
