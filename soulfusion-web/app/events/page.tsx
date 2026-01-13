@@ -419,7 +419,7 @@ export default function EventsPage() {
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {myEvents.map((event) => (
-                <EventCard
+                <Link href={`/events/${event.id}`}><EventCard
                   key={event.id}
                   event={event}
                   currentUser={currentUser}
@@ -454,7 +454,7 @@ export default function EventsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredEvents.map((event) => (
-                <EventCard
+                <Link href={`/events/${event.id}`}><EventCard
                   key={event.id}
                   event={event}
                   currentUser={currentUser}
