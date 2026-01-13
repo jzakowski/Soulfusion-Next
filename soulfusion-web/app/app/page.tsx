@@ -8,19 +8,35 @@ import { Loader2 } from "lucide-react"
 
 export default function AppPage() {
   const router = useRouter()
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const { isAuthenticated, isLoading, loadUser } = useAuthStore()
   const [posts, setPosts] = useState<any[]>([])
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [hasTriedAuth, setHasTriedAuth] = useState(false)
+
+  // Load user from server (check session cookie)
+  useEffect(() => {
+    const checkAuth = async () => {
+      console.log("Checking auth with server...")
+      try {
+        await loadUser()
+      } catch (err) {
+        console.log("Not authenticated")
+      } finally {
+        setHasTriedAuth(true)
+      }
+    }
+    checkAuth()
+  }, [loadUser])
 
   // Redirect to landing if not authenticated
   useEffect(() => {
-    console.log("Auth check:", { isLoading, isAuthenticated })
-    if (!isLoading && !isAuthenticated) {
+    console.log("Auth check:", { isLoading, isAuthenticated, hasTriedAuth })
+    if (hasTriedAuth && !isLoading && !isAuthenticated) {
       console.log("Redirecting to /")
       router.push("/")
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, hasTriedAuth, router])
 
   // Load posts
   useEffect(() => {
