@@ -1,8 +1,16 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Calendar,
   Home,
@@ -12,10 +20,13 @@ import {
   MessageCircle,
   MapPin,
   Star,
-  ArrowRight
+  ArrowRight,
+  X
 } from "lucide-react"
 
 export default function LandingPage() {
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+
   return (
     <div className="min-h-screen">
       {/* Navigation */}
@@ -26,18 +37,24 @@ export default function LandingPage() {
             <span className="text-xl font-bold">SoulFusion</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost">Anmelden</Button>
-            </Link>
-            <Link href="/auth/login">
-              <Button>Registrieren</Button>
-            </Link>
+            <Button variant="ghost" onClick={() => setShowLoginDialog(true)}>Anmelden</Button>
+            <Button onClick={() => setShowLoginDialog(true)}>Registrieren</Button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative flex min-h-[90vh] items-center justify-center bg-gradient-to-b from-primary/10 via-background to-background px-4">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background/80 to-background" />
+          <img
+            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920&q=80"
+            alt="Community"
+            className="h-full w-full object-cover"
+          />
+        </div>
+
         <div className="mx-auto max-w-5xl text-center">
           <div className="mb-6 inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm text-primary">
             ✨ Willkommen in der Community
@@ -52,12 +69,10 @@ export default function LandingPage() {
             Entdecke Events, finde Unterkünfte, triff neue Leute – alles in einer Community, die dich wachsen lässt.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Link href="/auth/login">
-              <Button size="lg" className="gap-2 text-lg">
-                Jetzt beitreten
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
+            <Button size="lg" className="gap-2 text-lg" onClick={() => setShowLoginDialog(true)}>
+              Jetzt beitreten
+              <ArrowRight className="h-5 w-5" />
+            </Button>
             <Link href="/events">
               <Button size="lg" variant="outline" className="text-lg">
                 Events entdecken
@@ -234,12 +249,10 @@ export default function LandingPage() {
             <p className="mb-8 text-lg opacity-90">
               Schließe dich Tausenden von Menschen an, die gemeinsam an sich selbst wachsen und echte Verbindungen suchen.
             </p>
-            <Link href="/auth/login">
-              <Button size="lg" variant="secondary" className="gap-2 text-lg">
-                Jetzt kostenlos registrieren
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
+            <Button size="lg" variant="secondary" className="gap-2 text-lg" onClick={() => setShowLoginDialog(true)}>
+              Jetzt kostenlos registrieren
+              <ArrowRight className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
@@ -288,6 +301,77 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Login/Register Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Willkommen bei SoulFusion</span>
+              <button
+                onClick={() => setShowLoginDialog(false)}
+                className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Schließen</span>
+              </button>
+            </DialogTitle>
+            <DialogDescription>
+              Melde dich an oder registriere dich, um Teil der Community zu werden.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                E-Mail
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="deine@email.de"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+            </div>
+
+            <Button className="w-full" size="lg">
+              Magic Link senden
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Oder
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Button variant="outline" className="w-full">
+                Google
+              </Button>
+              <Button variant="outline" className="w-full">
+                Apple
+              </Button>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Mit der Registrierung akzeptierst du unsere{" "}
+            <Link href="/agb" className="underline hover:text-primary" onClick={(e) => { e.preventDefault(); window.location.href = '/agb'; }}>
+              AGB
+            </Link>{" "}
+            und{" "}
+            <Link href="/datenschutz" className="underline hover:text-primary" onClick={(e) => { e.preventDefault(); window.location.href = '/datenschutz'; }}>
+              Datenschutzrichtlinie
+            </Link>
+            .
+          </p>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
