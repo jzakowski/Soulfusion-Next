@@ -55,7 +55,13 @@ export default function AppPage() {
       console.log("Loading posts...")
       const response = await apiClient.getPosts()
       console.log("Posts response:", response)
-      setPosts(response.items || response || [])
+      console.log("Response items:", response?.items)
+      console.log("Response as array:", Array.isArray(response) ? response : "not an array")
+
+      const postsData = response?.items || (Array.isArray(response) ? response : [])
+      console.log("Final posts data:", postsData)
+      console.log("Posts length:", postsData.length)
+      setPosts(postsData)
     } catch (error) {
       console.error("Failed to load posts:", error)
       setError("Beiträge konnten nicht geladen werden")
