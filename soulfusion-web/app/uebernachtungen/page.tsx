@@ -99,16 +99,16 @@ export default function UebernachtungenPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
-          <div className="container mx-auto px-4 py-4">
+        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b shadow-sm">
+          <div className="container mx-auto px-4 py-6">
             <div className="max-w-5xl mx-auto">
-              <div className="bg-white rounded-2xl shadow-md border p-3">
-                <div className="flex flex-wrap items-center gap-2 md:gap-4">
+              <div className="bg-white rounded-[3rem] shadow-lg border p-4">
+                <div className="flex flex-wrap items-center gap-3 md:gap-4">
                   {/* Location */}
                   <div className="relative">
                     <button
                       onClick={() => setShowLocationInput(!showLocationInput)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors min-w-[140px]"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all min-w-[140px]"
                     >
                       <MapPinIcon className="h-5 w-5 text-muted-foreground" />
                       <div className="text-left">
@@ -119,22 +119,23 @@ export default function UebernachtungenPage() {
                       </div>
                     </button>
                     {showLocationInput && (
-                      <div className="absolute top-full left-0 mt-2 bg-white border rounded-lg shadow-lg p-3 w-64 z-50">
+                      <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
                         <Input
                           placeholder="Ort eingeben"
                           value={filterState.locationQuery}
                           onChange={(e) => setFilterState({ ...filterState, locationQuery: e.target.value })}
                           autoFocus
                           onBlur={() => setTimeout(() => setShowLocationInput(false), 200)}
+                          className="border-0"
                         />
                       </div>
                     )}
                   </div>
 
-                  <div className="hidden md:block w-px h-8 bg-border" />
+                  <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* Start Date */}
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
+                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all">
                     <Calendar className="h-5 w-5 text-muted-foreground" />
                     <div className="text-left">
                       <p className="text-xs font-semibold">Anreisetag</p>
@@ -142,10 +143,10 @@ export default function UebernachtungenPage() {
                     </div>
                   </button>
 
-                  <div className="hidden md:block w-px h-8 bg-border" />
+                  <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* End Date */}
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
+                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all">
                     <Calendar className="h-5 w-5 text-muted-foreground" />
                     <div className="text-left">
                       <p className="text-xs font-semibold">Abreisetag</p>
@@ -153,13 +154,13 @@ export default function UebernachtungenPage() {
                     </div>
                   </button>
 
-                  <div className="hidden md:block w-px h-8 bg-border" />
+                  <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* Guests */}
                   <div className="relative">
                     <button
                       onClick={() => setShowGuestsOverlay(!showGuestsOverlay)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all"
                     >
                       <Group className="h-5 w-5 text-muted-foreground" />
                       <div className="text-left">
@@ -171,31 +172,31 @@ export default function UebernachtungenPage() {
                     {/* Guests Overlay */}
                     {showGuestsOverlay && (
                       <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowGuestsOverlay(false)} />
-                        <div className="absolute top-full left-0 mt-2 bg-white border rounded-xl shadow-xl p-4 w-80 z-50">
-                          <h3 className="font-semibold mb-4">Weiteres</h3>
+                        <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setShowGuestsOverlay(false)} />
+                        <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-3xl shadow-2xl p-6 w-96 z-50">
+                          <h3 className="font-semibold mb-6 text-lg">Weiteres</h3>
 
                           {/* Adults */}
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              <Users className="h-5 w-5 text-muted-foreground" />
-                              <span>Erwachsene</span>
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                              <Users className="h-6 w-6 text-muted-foreground" />
+                              <span className="font-medium">Erwachsene</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-10 w-10 rounded-full"
                                 onClick={() => setFilterState({ ...filterState, adults: Math.max(1, filterState.adults - 1) })}
                                 disabled={filterState.adults <= 1}
                               >
                                 -
                               </Button>
-                              <span className="w-8 text-center">{filterState.adults}</span>
+                              <span className="w-10 text-center text-lg font-semibold">{filterState.adults}</span>
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-10 w-10 rounded-full"
                                 onClick={() => setFilterState({ ...filterState, adults: filterState.adults + 1 })}
                               >
                                 +
@@ -204,26 +205,26 @@ export default function UebernachtungenPage() {
                           </div>
 
                           {/* Children */}
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              <Users className="h-5 w-5 text-muted-foreground" />
-                              <span>Kinder</span>
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                              <Users className="h-6 w-6 text-muted-foreground" />
+                              <span className="font-medium">Kinder</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-10 w-10 rounded-full"
                                 onClick={() => setFilterState({ ...filterState, children: Math.max(0, filterState.children - 1) })}
                                 disabled={filterState.children <= 0}
                               >
                                 -
                               </Button>
-                              <span className="w-8 text-center">{filterState.children}</span>
+                              <span className="w-10 text-center text-lg font-semibold">{filterState.children}</span>
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-10 w-10 rounded-full"
                                 onClick={() => setFilterState({ ...filterState, children: filterState.children + 1 })}
                               >
                                 +
@@ -233,7 +234,7 @@ export default function UebernachtungenPage() {
 
                           <Button
                             variant="ghost"
-                            className="w-full"
+                            className="w-full rounded-2xl"
                             onClick={() => setShowGuestsOverlay(false)}
                           >
                             Fertig
@@ -246,7 +247,7 @@ export default function UebernachtungenPage() {
                   <div className="flex-1" />
 
                   {/* Search Button */}
-                  <Button size="lg" className="rounded-full px-6">
+                  <Button size="lg" className="rounded-full px-8 h-14 text-base">
                     <Search className="h-5 w-5 mr-2" />
                     Suchen
                   </Button>
