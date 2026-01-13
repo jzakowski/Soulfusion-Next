@@ -54,12 +54,23 @@ export default function UebernachtungenPage() {
 
   const [showLocationInput, setShowLocationInput] = useState(false);
   const [showGuestsOverlay, setShowGuestsOverlay] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   useEffect(() => {
     fetchAccommodations();
   }, [fetchAccommodations]);
 
   const totalGuests = filterState.adults + filterState.children;
+
+  // Get today's date in YYYY-MM-DD format for min attribute
+  const today = new Date().toISOString().split('T')[0];
+
+  // Format date for display
+  const formatDateDisplay = (dateString: string | null) => {
+    if (!dateString) return 'Datum';
+    return new Date(dateString).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  };
 
   return (
     <AppLayout>
@@ -135,24 +146,89 @@ export default function UebernachtungenPage() {
                   <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* Start Date */}
-                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <div className="text-left">
-                      <p className="text-xs font-semibold">Anreisetag</p>
-                      <p className="text-sm">{filterState.startDate ? new Date(filterState.startDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'Datum'}</p>
-                    </div>
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowStartDatePicker(!showStartDatePicker)}
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl"
+                    >
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <div className="text-left">
+                        <p className="text-xs font-semibold">Anreisetag</p>
+                        <p className="text-sm">{formatDateDisplay(filterState.startDate)}</p>
+                      </div>
+                    </button>
+                    {showStartDatePicker && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowStartDatePicker(false)} />
+                        <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
+                          <h3 className="font-semibold mb-4">Anreisetag</h3>
+                          <input
+                            type="date"
+                            value={filterState.startDate || ''}
+                            onChange={(e) => {
+                              const date = e.target.value;
+                              setFilterState({ ...filterState, startDate: date || null });
+                              // Also set end date min to start date + 1 day
+                              if (date && filterState.endDate && new Date(date) >= new Date(filterState.endDate)) {
+                                const nextDay = new Date(date);
+                                nextDay.setDate(nextDay.getDate() + 1);
+                                setFilterState(prev => ({ ...prev, endDate: nextDay.toISOString().split('T')[0] }));
+                              }
+                            }}
+                            min={today}
+                            className="w-full border-2 rounded-lg p-2"
+                            onBlur={() => setTimeout(() => setShowStartDatePicker(false), 200)}
+                          />
+                          <Button
+                            variant="ghost"
+                            className="w-full mt-3 rounded-2xl"
+                            onClick={() => setShowStartDatePicker(false)}
+                          >
+                            Fertig
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
 
                   <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* End Date */}
-                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <div className="text-left">
-                      <p className="text-xs font-semibold">Abreisetag</p>
-                      <p className="text-sm">{filterState.endDate ? new Date(filterState.endDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'Datum'}</p>
-                    </div>
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowEndDatePicker(!showEndDatePicker)}
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl"
+                    >
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <div className="text-left">
+                        <p className="text-xs font-semibold">Abreisetag</p>
+                        <p className="text-sm">{formatDateDisplay(filterState.endDate)}</p>
+                      </div>
+                    </button>
+                    {showEndDatePicker && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowEndDatePicker(false)} />
+                        <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
+                          <h3 className="font-semibold mb-4">Abreisetag</h3>
+                          <input
+                            type="date"
+                            value={filterState.endDate || ''}
+                            onChange={(e) => setFilterState({ ...filterState, endDate: e.target.value || null })}
+                            min={filterState.startDate ? new Date(new Date(filterState.startDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] : today}
+                            className="w-full border-2 rounded-lg p-2"
+                            onBlur={() => setTimeout(() => setShowEndDatePicker(false), 200)}
+                          />
+                          <Button
+                            variant="ghost"
+                            className="w-full mt-3 rounded-2xl"
+                            onClick={() => setShowEndDatePicker(false)}
+                          >
+                            Fertig
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
 
                   <div className="hidden md:block w-px h-10 bg-border/50" />
 
