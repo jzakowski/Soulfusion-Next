@@ -23,12 +23,15 @@ function LoginPageContent() {
   const { login, verifyMagicLink, isAuthenticated } = useAuthStore();
   const { addToast } = useUIStore();
 
+  // Get email from URL parameter for magic link verification
+  const emailFromToken = searchParams.get("email");
+
   // Handle magic link verification
   useEffect(() => {
-    if (magicLinkToken) {
-      handleVerifyMagicLink(magicLinkToken);
+    if (magicLinkToken && emailFromToken) {
+      handleVerifyMagicLink(magicLinkToken, emailFromToken);
     }
-  }, [magicLinkToken]);
+  }, [magicLinkToken, emailFromToken]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -56,9 +59,9 @@ function LoginPageContent() {
     }
   };
 
-  const handleVerifyMagicLink = async (token: string) => {
+  const handleVerifyMagicLink = async (token: string, email: string) => {
     try {
-      await verifyMagicLink(token);
+      await verifyMagicLink(token, email);
       addToast({
         message: "Erfolgreich eingeloggt!",
         variant: "success",
