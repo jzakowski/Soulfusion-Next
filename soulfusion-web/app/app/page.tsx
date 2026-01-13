@@ -14,6 +14,8 @@ interface Post {
   content?: string
   text?: string
   type?: string
+  author_display_name?: string
+  author_avatar_url?: string
   author?: {
     id?: string
     display_name?: string
@@ -156,7 +158,7 @@ export default function AppPage() {
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-sm font-medium">
-                      {post.author?.display_name || post.author_name || "Anonymous"}
+                      {post.author_display_name || post.author?.display_name || post.author_name || "Anonymous"}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
                       {post.created_at ? new Date(post.created_at).toLocaleDateString("de-DE", {
