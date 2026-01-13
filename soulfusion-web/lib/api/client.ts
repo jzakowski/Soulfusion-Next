@@ -90,7 +90,7 @@ class ApiClient {
   }
 
   async updateProfile(data: any): Promise<any> {
-    const response = await this.client.put('/profile/me', data);
+    const response = await this.client.put('/profile', data);
     return response.data;
   }
 

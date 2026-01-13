@@ -23,6 +23,7 @@ import { useAuthStore } from "@/lib/stores/auth-store";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiClient } from "@/lib/api/client";
 
 type Tab = "profile" | "notifications" | "privacy" | "appearance" | "account";
 
@@ -36,7 +37,7 @@ const tabs: { id: Tab; label: string; icon: any }[] = [
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, setUser } = useAuthStore();
   const { addToast } = useUIStore();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
@@ -81,13 +82,19 @@ export default function SettingsPage() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      // TODO: Implement profile update API call
-      // For now, just show success message
+      const response = await apiClient.updateProfile(profileData);
+      console.log("Profile updated:", response);
+
+      // Update user in store
+      const updatedUser = { ...user, ...profileData };
+      setUser(updatedUser);
+
       addToast({
         message: "Profil erfolgreich aktualisiert!",
         variant: "success",
       });
     } catch (error) {
+      console.error("Error updating profile:", error);
       addToast({
         message: "Fehler beim Speichern",
         variant: "error",
