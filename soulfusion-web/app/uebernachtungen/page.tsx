@@ -108,7 +108,7 @@ export default function UebernachtungenPage() {
                   <div className="relative">
                     <button
                       onClick={() => setShowLocationInput(!showLocationInput)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all min-w-[140px]"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl min-w-[140px]"
                     >
                       <MapPinIcon className="h-5 w-5 text-muted-foreground" />
                       <div className="text-left">
@@ -135,7 +135,7 @@ export default function UebernachtungenPage() {
                   <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* Start Date */}
-                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all">
+                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl">
                     <Calendar className="h-5 w-5 text-muted-foreground" />
                     <div className="text-left">
                       <p className="text-xs font-semibold">Anreisetag</p>
@@ -146,7 +146,7 @@ export default function UebernachtungenPage() {
                   <div className="hidden md:block w-px h-10 bg-border/50" />
 
                   {/* End Date */}
-                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all">
+                  <button className="flex items-center gap-2 px-4 py-3 rounded-2xl">
                     <Calendar className="h-5 w-5 text-muted-foreground" />
                     <div className="text-left">
                       <p className="text-xs font-semibold">Abreisetag</p>
@@ -160,7 +160,7 @@ export default function UebernachtungenPage() {
                   <div className="relative">
                     <button
                       onClick={() => setShowGuestsOverlay(!showGuestsOverlay)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-2xl hover:bg-muted/80 transition-all"
+                      className="flex items-center gap-2 px-4 py-3 rounded-2xl"
                     >
                       <Group className="h-5 w-5 text-muted-foreground" />
                       <div className="text-left">
