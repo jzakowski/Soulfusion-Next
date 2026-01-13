@@ -79,7 +79,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-2xl gap-6 sm:grid-cols-2">
             {/* Events */}
             <Card className="group overflow-hidden border-2 transition-all hover:border-primary hover:shadow-lg">
               <CardContent className="p-6">
