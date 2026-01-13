@@ -75,9 +75,13 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true });
         try {
           const response = await apiClient.getProfile();
+          console.log("loadUser - API response:", response);
           const user = response.user || response;
+          console.log("loadUser - Extracted user:", user);
           set({ user, isAuthenticated: true, isLoading: false });
+          console.log("loadUser - User set in store");
         } catch (error) {
+          console.log("loadUser - Error:", error);
           set({
             user: null,
             isAuthenticated: false,
