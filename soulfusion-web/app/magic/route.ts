@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
 
-export default function MagicPage({
+export default async function MagicPage({
   searchParams,
 }: {
-  searchParams: { token?: string; email?: string }
+  searchParams: Promise<{ token?: string; email?: string }>
 }) {
-  const { token, email } = searchParams
+  const { token, email } = await searchParams
 
   // Redirect if no token or email
   if (!token || !email) {
