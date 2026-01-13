@@ -67,15 +67,14 @@ class ApiClient {
 
   // Auth methods
   async login(email: string): Promise<{ success: boolean; message?: string }> {
-    const response = await this.client.post('/auth/magic-link', { email });
-    return response.data;
+    const response = await this.client.post('/auth/magic/start', { email });
+    // API returns { ok: true } on success
+    return { success: response.data.ok === true };
   }
 
-  async verifyMagicLink(token: string): Promise<{ user: any; session_token: string }> {
-    const response = await this.client.post('/auth/magic-link/complete', { token });
-    if (response.data.session_token) {
-      this.setToken(response.data.session_token);
-    }
+  async verifyMagicLink(token: string, email: string): Promise<{ ok: boolean; user?: any }> {
+    const response = await this.client.post('/auth/magic/complete', { token, email });
+    // API returns { ok: true, user: true } and sets HttpOnly cookie
     return response.data;
   }
 
