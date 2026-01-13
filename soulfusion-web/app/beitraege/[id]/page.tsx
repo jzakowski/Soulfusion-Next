@@ -22,11 +22,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Comment } from "@/types/features/post";
 
-export default function PostDetailPage({ params }: { params: { id: string } }) {
+export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const { likePost, savePost, addComment } = usePostsStore();
   const { addToast } = useUIStore();
+  const [postId, setPostId] = useState<string | null>(null);
+
+  useEffect(() => {
+    params.then(p => setPostId(p.id));
+  }, [params]);
+
+  if (!postId) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -35,12 +50,12 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchPost();
-  }, [params.id]);
+  }, [postId]);
 
   const fetchPost = async () => {
     try {
       const { fetchPost: getPost } = usePostsStore.getState();
-      const postData = await getPost(params.id);
+      const postData = await getPost(postId);
       setPost(postData);
     } catch (error) {
       addToast({
@@ -59,7 +74,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
       return;
     }
     likePost(post.id);
-    setPost(prev => ({
+    setPost((prev: any) => ({
       ...prev,
       is_liked_by_me: !prev.is_liked_by_me,
       likes_count: prev.is_liked_by_me ? prev.likes_count - 1 : prev.likes_count + 1,
@@ -72,7 +87,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
       return;
     }
     savePost(post.id);
-    setPost(prev => ({
+    setPost((prev: any) => ({
       ...prev,
       is_saved_by_me: !prev.is_saved_by_me,
     }));
@@ -149,10 +164,10 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-lg font-bold">
-                {post.author_display_name?.charAt(0).toUpperCase()}
+                {post.user_display_name?.charAt(0).toUpperCase()}
               </div>
               <div>
-                <CardTitle>{post.author_display_name}</CardTitle>
+                <CardTitle>{post.user_display_name}</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   {new Date(post.created_at).toLocaleDateString('de-DE', {
                     day: '2-digit',
@@ -345,11 +360,11 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
                 {post.comments.map((comment: Comment) => (
                   <div key={comment.id} className="flex gap-3">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      {comment.author_display_name?.charAt(0)}
+                      {comment.user_display_name?.charAt(0)}
                     </div>
                     <div className="flex-1">
                       <div className="mb-1">
-                        <span className="font-medium">{comment.author_display_name}</span>
+                        <span className="font-medium">{comment.user_display_name}</span>
                         <span className="ml-2 text-xs text-muted-foreground">
                           {new Date(comment.created_at).toLocaleDateString('de-DE', {
                             day: '2-digit',
@@ -374,16 +389,16 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
                       </div>
 
                       {/* Nested Replies */}
-                      {comment.replies && comment.replies.length > 0 && (
+                      {(comment as any).replies && (comment as any).replies.length > 0 && (
                         <div className="mt-3 space-y-3 border-l-2 border-muted pl-4">
-                          {comment.replies.map((reply) => (
+                          {(comment as any).replies.map((reply: any) => (
                             <div key={reply.id} className="flex gap-2">
                               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs">
-                                {reply.author_display_name?.charAt(0)}
+                                {reply.user_display_name?.charAt(0)}
                               </div>
                               <div>
                                 <div className="mb-1">
-                                  <span className="text-sm font-medium">{reply.author_display_name}</span>
+                                  <span className="text-sm font-medium">{reply.user_display_name}</span>
                                   <span className="ml-2 text-xs text-muted-foreground">
                                     {new Date(reply.created_at).toLocaleDateString('de-DE', {
                                       day: '2-digit',

@@ -53,20 +53,34 @@ const mockAccommodation = {
   },
 };
 
-export default function AccommodationDetailPage({ params }: { params: { id: string } }) {
+export default function AccommodationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [accommodation, setAccommodation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [requestSent, setRequestSent] = useState(false);
+  const [accommodationId, setAccommodationId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate fetching data
-    setTimeout(() => {
-      setAccommodation(mockAccommodation);
-      setLoading(false);
-    }, 500);
-  }, [params.id]);
+    params.then(p => {
+      setAccommodationId(p.id);
+      // Simulate fetching data
+      setTimeout(() => {
+        setAccommodation(mockAccommodation);
+        setLoading(false);
+      }, 500);
+    });
+  }, [params]);
+
+  if (loading || !accommodationId) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   const handleRequest = () => {
     setRequestSent(true);

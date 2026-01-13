@@ -26,7 +26,7 @@ const mockRoom = {
   is_active: true,
 };
 
-export default function RoomPage({ params }: { params: { id: string } }) {
+export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { addToast } = useUIStore();
   const [room, setRoom] = useState<any>(null);
@@ -35,13 +35,30 @@ export default function RoomPage({ params }: { params: { id: string } }) {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
+  const [roomId, setRoomId] = useState<string | null>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Simulate loading room data
-    setRoom(mockRoom);
-  }, [params.id]);
+    params.then(p => {
+      setRoomId(p.id);
+      // Simulate loading room data
+      setRoom(mockRoom);
+    });
+  }, [params]);
+
+  if (!roomId) {
+    return (
+      <AppLayout>
+        <div className="flex h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+            <p>Laden...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const handleJoin = async () => {
     try {

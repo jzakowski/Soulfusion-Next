@@ -10,11 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Bed, MapPin, Users, Star, Filter, Loader2, Search, Calendar, Group, Heart, Plus, User, MapPin as MapPinIcon, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { DateRangeCalendar } from "@/components/ui/date-range-calendar";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface FilterState {
   locationQuery: string;
-  startDate: string | null;
-  endDate: string | null;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   adults: number;
   children: number;
   type: string | null;
@@ -38,8 +41,8 @@ export default function UebernachtungenPage() {
 
   const [filterState, setFilterState] = useState<FilterState>({
     locationQuery: '',
-    startDate: null,
-    endDate: null,
+    startDate: undefined,
+    endDate: undefined,
     adults: 2,
     children: 0,
     type: null,
@@ -54,8 +57,7 @@ export default function UebernachtungenPage() {
 
   const [showLocationInput, setShowLocationInput] = useState(false);
   const [showGuestsOverlay, setShowGuestsOverlay] = useState(false);
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     fetchAccommodations();
@@ -63,13 +65,15 @@ export default function UebernachtungenPage() {
 
   const totalGuests = filterState.adults + filterState.children;
 
-  // Get today's date in YYYY-MM-DD format for min attribute
-  const today = new Date().toISOString().split('T')[0];
-
   // Format date for display
-  const formatDateDisplay = (dateString: string | null) => {
-    if (!dateString) return 'Datum';
-    return new Date(dateString).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  const formatDateDisplay = (date: Date | undefined) => {
+    if (!date) return 'Datum';
+    return format(date, "dd.MM.", { locale: de });
+  };
+
+  // Handle date range selection
+  const handleDateSelect = (start: Date | undefined, end: Date | undefined) => {
+    setFilterState({ ...filterState, startDate: start, endDate: end });
   };
 
   return (
@@ -145,86 +149,36 @@ export default function UebernachtungenPage() {
 
                   <div className="hidden md:block w-px h-10 bg-border/50" />
 
-                  {/* Start Date */}
+                  {/* Date Range - Opens calendar with range selection */}
                   <div className="relative">
                     <button
-                      onClick={() => setShowStartDatePicker(!showStartDatePicker)}
+                      onClick={() => setShowCalendar(!showCalendar)}
                       className="flex items-center gap-2 px-4 py-3 rounded-2xl"
                     >
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <div className="text-left">
-                        <p className="text-xs font-semibold">Anreisetag</p>
-                        <p className="text-sm">{formatDateDisplay(filterState.startDate)}</p>
+                        <p className="text-xs font-semibold">Anreise - Abreise</p>
+                        <p className="text-sm">
+                          {filterState.startDate && filterState.endDate
+                            ? `${formatDateDisplay(filterState.startDate)} - ${formatDateDisplay(filterState.endDate)}`
+                            : filterState.startDate
+                            ? formatDateDisplay(filterState.startDate)
+                            : 'Datum wählen'}
+                        </p>
                       </div>
                     </button>
-                    {showStartDatePicker && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowStartDatePicker(false)} />
-                        <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
-                          <h3 className="font-semibold mb-4">Anreisetag</h3>
-                          <input
-                            type="date"
-                            value={filterState.startDate || ''}
-                            onChange={(e) => {
-                              const date = e.target.value;
-                              setFilterState({ ...filterState, startDate: date || null });
-                              // Also set end date min to start date + 1 day
-                              if (date && filterState.endDate && new Date(date) >= new Date(filterState.endDate)) {
-                                const nextDay = new Date(date);
-                                nextDay.setDate(nextDay.getDate() + 1);
-                                setFilterState(prev => ({ ...prev, endDate: nextDay.toISOString().split('T')[0] }));
-                              }
-                            }}
-                            min={today}
-                            className="w-full border-2 rounded-lg p-2"
-                            onBlur={() => setTimeout(() => setShowStartDatePicker(false), 200)}
-                          />
-                          <Button
-                            variant="ghost"
-                            className="w-full mt-3 rounded-2xl"
-                            onClick={() => setShowStartDatePicker(false)}
-                          >
-                            Fertig
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
 
-                  <div className="hidden md:block w-px h-10 bg-border/50" />
-
-                  {/* End Date */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowEndDatePicker(!showEndDatePicker)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-2xl"
-                    >
-                      <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div className="text-left">
-                        <p className="text-xs font-semibold">Abreisetag</p>
-                        <p className="text-sm">{formatDateDisplay(filterState.endDate)}</p>
-                      </div>
-                    </button>
-                    {showEndDatePicker && (
+                    {/* Date Range Calendar Overlay */}
+                    {showCalendar && (
                       <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowEndDatePicker(false)} />
-                        <div className="absolute top-full left-0 mt-3 bg-white border-2 rounded-2xl shadow-xl p-4 w-72 z-50">
-                          <h3 className="font-semibold mb-4">Abreisetag</h3>
-                          <input
-                            type="date"
-                            value={filterState.endDate || ''}
-                            onChange={(e) => setFilterState({ ...filterState, endDate: e.target.value || null })}
-                            min={filterState.startDate ? new Date(new Date(filterState.startDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] : today}
-                            className="w-full border-2 rounded-lg p-2"
-                            onBlur={() => setTimeout(() => setShowEndDatePicker(false), 200)}
+                        <div className="fixed inset-0 z-40" onClick={() => setShowCalendar(false)} />
+                        <div className="absolute top-full left-0 mt-3 z-50">
+                          <DateRangeCalendar
+                            startDate={filterState.startDate}
+                            endDate={filterState.endDate}
+                            onSelect={handleDateSelect}
+                            onClose={() => setShowCalendar(false)}
                           />
-                          <Button
-                            variant="ghost"
-                            className="w-full mt-3 rounded-2xl"
-                            onClick={() => setShowEndDatePicker(false)}
-                          >
-                            Fertig
-                          </Button>
                         </div>
                       </>
                     )}

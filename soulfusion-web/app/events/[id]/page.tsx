@@ -70,7 +70,7 @@ export default function EventDetailPage() {
     if (navigator.share) {
       await navigator.share({
         title: event?.name,
-        text: event?.description,
+        text: event?.description || '',
         url: window.location.href,
       });
     }
@@ -258,7 +258,7 @@ export default function EventDetailPage() {
                     <Button
                       variant="outline"
                       className="w-full"
-                      onClick={() => window.open(event.meeting_url, '_blank')}
+                      onClick={() => window.open(event.meeting_url || '', '_blank')}
                     >
                       <Globe className="mr-2 h-4 w-4" />
                       Meeting beitreten
@@ -362,7 +362,7 @@ export default function EventDetailPage() {
                   <Button
                     className="w-full"
                     onClick={handleJoin}
-                    disabled={!event.capacity || event.attendee_count >= event.capacity}
+                    disabled={!event.capacity || (event.attendee_count || 0) >= event.capacity}
                   >
                     {event.price_type === 'free' ? 'Kostenlos teilnehmen' : 'Teilnehmen'}
                   </Button>
