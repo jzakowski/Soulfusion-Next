@@ -25,6 +25,7 @@ import {
   Settings
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 // Mock events data - would come from API
 const mockEvents = [
@@ -419,16 +420,17 @@ export default function EventsPage() {
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {myEvents.map((event) => (
-                <Link href={`/events/${event.id}`}><EventCard
-                  key={event.id}
-                  event={event}
-                  currentUser={currentUser}
-                  onJoin={() => toggleJoin(event.id)}
-                  onInterest={() => toggleInterest(event.id)}
-                  onToggleParticipants={() => toggleParticipants(event.id)}
-                  showParticipants={expandedParticipants === event.id}
-                  participants={getParticipants(event.id)}
-                />
+                <Link href={`/events/${event.id}`} key={event.id}>
+                  <EventCard
+                    event={event}
+                    currentUser={currentUser}
+                    onJoin={() => toggleJoin(event.id)}
+                    onInterest={() => toggleInterest(event.id)}
+                    onToggleParticipants={() => toggleParticipants(event.id)}
+                    showParticipants={expandedParticipants === event.id}
+                    participants={getParticipants(event.id)}
+                  />
+                </Link>
               ))}
             </div>
           </div>
@@ -454,16 +456,17 @@ export default function EventsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredEvents.map((event) => (
-                <Link href={`/events/${event.id}`}><EventCard
-                  key={event.id}
-                  event={event}
-                  currentUser={currentUser}
-                  onJoin={() => toggleJoin(event.id)}
-                  onInterest={() => toggleInterest(event.id)}
-                  onToggleParticipants={() => toggleParticipants(event.id)}
-                  showParticipants={expandedParticipants === event.id}
-                  participants={getParticipants(event.id)}
-                />
+                <Link href={`/events/${event.id}`} key={event.id}>
+                  <EventCard
+                    event={event}
+                    currentUser={currentUser}
+                    onJoin={() => toggleJoin(event.id)}
+                    onInterest={() => toggleInterest(event.id)}
+                    onToggleParticipants={() => toggleParticipants(event.id)}
+                    showParticipants={expandedParticipants === event.id}
+                    participants={getParticipants(event.id)}
+                  />
+                </Link>
               ))}
             </div>
           )}
