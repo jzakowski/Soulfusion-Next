@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
-export default function MagicPage() {
+function MagicPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -29,5 +30,18 @@ export default function MagicPage() {
         <p className="text-muted-foreground">Wird weitergeleitet...</p>
       </div>
     </div>
+  )
+}
+
+// Wrap with Suspense to avoid useSearchParams SSR issue
+export default function MagicPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <MagicPageContent />
+    </Suspense>
   )
 }
