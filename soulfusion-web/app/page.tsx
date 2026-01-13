@@ -47,11 +47,11 @@ export default function LandingPage() {
       <section className="relative flex min-h-[90vh] items-center justify-center bg-gradient-to-b from-primary/10 via-background to-background px-4">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background/80 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-background/85 to-background" />
           <img
-            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920&q=80"
+            src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1920&q=80"
             alt="Community"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-center"
           />
         </div>
 
