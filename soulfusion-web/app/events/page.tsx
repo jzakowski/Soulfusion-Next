@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,150 +22,19 @@ import {
   ChevronUp,
   MessageSquare,
   Star,
-  Settings
+  Settings,
+  Loader2
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEventsStore, Event } from "@/lib/stores/events-store";
 
-// Mock events data - would come from API
-const mockEvents = [
-  {
-    id: "1",
-    title: "Weihnachtsmarkt Tour Berlin",
-    description: "Lass uns zusammen die schönsten Weihnachtsmärkte der Stadt erkunden!",
-    date: "2024-12-15",
-    time: "18:00",
-    location: "Alexanderplatz, Berlin",
-    city: "Berlin",
-    attendee_count: 24,
-    max_attendees: 50,
-    organizer_name: "Sarah",
-    organizer_avatar: "",
-    organizer_is_vip: true,
-    image_url: "https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=800",
-    category: "Ausgehen",
-    is_online: false,
-    is_joined: false,
-    is_interested: false,
-    has_forum: true,
-    payment_required: true,
-    payment_amount: 15,
-  },
-  {
-    id: "2",
-    title: "Wandern im Taunus",
-    description: "Gemütliche Herbstwanderung mit Picknick. Alle Schwierigkeitsgrade willkommen!",
-    date: "2024-11-20",
-    time: "10:00",
-    location: "Großer Feldberg, Taunus",
-    city: "Frankfurt",
-    attendee_count: 12,
-    max_attendees: 20,
-    organizer_name: "Max",
-    organizer_avatar: "",
-    organizer_is_vip: false,
-    image_url: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800",
-    category: "Natur",
-    is_online: false,
-    is_joined: true,
-    is_interested: false,
-    has_forum: true,
-    payment_required: false,
-  },
-  {
-    id: "3",
-    title: "Online Meditation Abend",
-    description: "Gemeinsam meditieren und entspannen von zu Hause aus.",
-    date: "2024-11-18",
-    time: "19:00",
-    location: "Zoom",
-    city: "Online",
-    attendee_count: 45,
-    max_attendees: null,
-    organizer_name: "Lisa",
-    organizer_avatar: "",
-    organizer_is_vip: true,
-    image_url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800",
-    category: "Wellness",
-    is_online: true,
-    is_joined: false,
-    is_interested: true,
-    has_forum: true,
-    payment_required: true,
-    payment_amount: 5,
-  },
-  {
-    id: "4",
-    title: "Brettspiel-Nachmittag",
-    description: "Spiele-Nachmittag mit Kaffee und Kuchen. Bring deine Lieblingsspiele mit!",
-    date: "2024-11-25",
-    time: "14:00",
-    location: "Café Munich, München",
-    city: "München",
-    attendee_count: 15,
-    max_attendees: null,
-    organizer_name: "Tom",
-    organizer_avatar: "",
-    organizer_is_vip: false,
-    image_url: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=800",
-    category: "Spiele",
-    is_online: false,
-    is_joined: false,
-    is_interested: false,
-    has_forum: true,
-    payment_required: false,
-  },
-  {
-    id: "5",
-    title: "Yoga im Park",
-    description: "Gemeinsame Yoga-Session im Grüßen. Für alle Level geeignet. Bring deine Matte mit!",
-    date: "2024-11-19",
-    time: "08:00",
-    location: "Englischer Garten, München",
-    city: "München",
-    attendee_count: 18,
-    max_attendees: 30,
-    organizer_name: "Yoga with Maria",
-    organizer_avatar: "",
-    organizer_is_vip: true,
-    image_url: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
-    category: "Sport",
-    is_online: false,
-    is_joined: false,
-    is_interested: true,
-    has_forum: true,
-    payment_required: true,
-    payment_amount: 10,
-  },
-  {
-    id: "6",
-    title: "Stammtisch Köln",
-    description: "Regelmäßiger Stammtisch für alle, die sich kennenlernen wollen.",
-    date: "2024-11-22",
-    time: "19:00",
-    location: "Gasthaus zur Stadt, Köln",
-    city: "Köln",
-    attendee_count: 8,
-    max_attendees: 15,
-    organizer_name: "Jan (VIP)",
-    organizer_avatar: "",
-    organizer_is_vip: true,
-    image_url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800",
-    category: "Stammtisch",
-    is_online: false,
-    is_joined: false,
-    is_interested: false,
-    has_forum: true,
-    payment_required: false,
-  },
-];
-
-const categories = ["Alle", "Ausgehen", "Natur", "Essen", "Spiele", "Sport", "Kultur", "Musik", "Wellness", "Stammtisch"];
+const categories = ["Alle", "Meditation", "Yoga", "Retreat", "Ceremony", "Workshop"];
 
 export default function EventsPage() {
+  const { events, loading, fetchEvents, joinEvent, leaveEvent, toggleInterest } = useEventsStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Alle");
-  const [events, setEvents] = useState(mockEvents);
   const [radius, setRadius] = useState(50);
   const [showRadiusSlider, setShowRadiusSlider] = useState(true);
   const [travelMode, setTravelMode] = useState(false);
@@ -180,6 +49,11 @@ export default function EventsPage() {
     is_vip: false,
   };
 
+  // Load events on mount
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
   const filteredEvents = events
     .filter((event) => {
       if (eventMode === "online" && !event.is_online) return false;
@@ -187,38 +61,32 @@ export default function EventsPage() {
       return true;
     })
     .filter((event) =>
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.city.toLowerCase().includes(searchQuery.toLowerCase())
+      event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (event.description && event.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (event.city && event.city.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     .filter((event) =>
-      selectedCategory === "Alle" || event.category === selectedCategory
+      selectedCategory === "Alle" || event.category.toLowerCase() === selectedCategory.toLowerCase()
     );
 
-  const toggleJoin = (eventId: string) => {
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId
-          ? {
-              ...event,
-              is_joined: !event.is_joined,
-              attendee_count: event.is_joined
-                ? event.attendee_count - 1
-                : event.attendee_count + 1,
-            }
-          : event
-      )
-    );
+  const handleJoin = async (eventId: string) => {
+    try {
+      if (events.find(e => e.id === eventId)?.is_joined) {
+        await leaveEvent(eventId);
+      } else {
+        await joinEvent(eventId);
+      }
+    } catch (error) {
+      console.error('Failed to toggle join:', error);
+    }
   };
 
-  const toggleInterest = (eventId: string) => {
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId
-          ? { ...event, is_interested: !event.is_interested }
-          : event
-      )
-    );
+  const handleInterest = async (eventId: string) => {
+    try {
+      await toggleInterest(eventId);
+    } catch (error) {
+      console.error('Failed to toggle interest:', error);
+    }
   };
 
   const toggleParticipants = (eventId: string) => {
@@ -229,10 +97,9 @@ export default function EventsPage() {
 
   // Mock participants for events
   const getParticipants = (eventId: string) => {
-    const event = mockEvents.find(e => e.id === eventId);
+    const event = events.find(e => e.id === eventId);
     if (!event) return [];
 
-    // Only return participants if user is joined or interested
     if (!event.is_joined && !event.is_interested) return [];
 
     return [
@@ -243,6 +110,22 @@ export default function EventsPage() {
       { id: "5", name: "Eva", is_friend: true, is_vip: false },
     ];
   };
+
+  // Format event data for EventCard
+  const formatEventData = (event: Event) => ({
+    ...event,
+    title: event.name,
+    date: event.starts_at,
+    time: event.starts_at,
+    location: event.is_online ? "Online" : (event.city || "TBD"),
+    organizer_name: "Organisator",
+    organizer_is_vip: false,
+    image_url: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
+    category: event.category.charAt(0).toUpperCase() + event.category.slice(1),
+    payment_required: event.price_type !== 'free',
+    payment_amount: event.price_cents ? event.price_cents / 100 : 0,
+    has_forum: true,
+  });
 
   return (
     <AppLayout>
@@ -267,6 +150,15 @@ export default function EventsPage() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && events.length === 0 ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </CardContent>
+          </Card>
+        ) : (
+          <>
         {/* Travel Mode Banner */}
         {travelMode && (
           <Card className="mb-6 border-tertiary bg-tertiary/10">
@@ -422,10 +314,10 @@ export default function EventsPage() {
               {myEvents.map((event) => (
                 <Link href={`/events/${event.id}`} key={event.id}>
                   <EventCard
-                    event={event}
+                    event={formatEventData(event)}
                     currentUser={currentUser}
-                    onJoin={() => toggleJoin(event.id)}
-                    onInterest={() => toggleInterest(event.id)}
+                    onJoin={() => handleJoin(event.id)}
+                    onInterest={() => handleInterest(event.id)}
                     onToggleParticipants={() => toggleParticipants(event.id)}
                     showParticipants={expandedParticipants === event.id}
                     participants={getParticipants(event.id)}
@@ -458,10 +350,10 @@ export default function EventsPage() {
               {filteredEvents.map((event) => (
                 <Link href={`/events/${event.id}`} key={event.id}>
                   <EventCard
-                    event={event}
+                    event={formatEventData(event)}
                     currentUser={currentUser}
-                    onJoin={() => toggleJoin(event.id)}
-                    onInterest={() => toggleInterest(event.id)}
+                    onJoin={() => handleJoin(event.id)}
+                    onInterest={() => handleInterest(event.id)}
                     onToggleParticipants={() => toggleParticipants(event.id)}
                     showParticipants={expandedParticipants === event.id}
                     participants={getParticipants(event.id)}
@@ -471,6 +363,8 @@ export default function EventsPage() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </AppLayout>
   );
@@ -532,12 +426,6 @@ function EventCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="line-clamp-1 text-lg">{event.title}</CardTitle>
-          {event.organizer_is_vip && (
-            <Badge className="bg-highlight text-highlight-foreground gap-1">
-              <Star className="h-3 w-3" />
-              VIP
-            </Badge>
-          )}
         </div>
         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
@@ -550,7 +438,10 @@ function EventCard({
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
-            {event.time}
+            {new Date(event.time).toLocaleTimeString('de-DE', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </div>
         </div>
       </CardHeader>
@@ -572,11 +463,8 @@ function EventCard({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1 text-muted-foreground">
             <Users className="h-4 w-4" />
-            <span>{event.attendee_count}</span>
-            {event.max_attendees && <span> {" / "} {event.max_attendees}</span>}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">von {event.organizer_name}</span>
+            <span>{event.attendee_count || 0}</span>
+            {event.capacity && <span> {" / "} {event.capacity}</span>}
           </div>
         </div>
 
@@ -651,7 +539,7 @@ function EventCard({
             size="icon"
             onClick={onInterest}
           >
-            <Calendar className={`h-4 w-4 ${event.is_interested ? "fill-current" : ""}`} />
+            <Star className={`h-4 w-4 ${event.is_interested ? "fill-current" : ""}`} />
           </Button>
         </div>
       </CardContent>
