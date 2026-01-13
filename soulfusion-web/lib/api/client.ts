@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// Use relative URL to go through Next.js rewrite proxy
-const API_BASE = '';
+// Base API path - all requests go through /api prefix
+const API_BASE = '/api';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -125,23 +125,23 @@ class ApiClient {
 
   // Accommodations
   async getAccommodations(params?: any): Promise<any> {
-    const response = await this.client.get('/api/unterkuenfte', { params });
+    const response = await this.client.get('/unterkuenfte', { params });
     return response.data;
   }
 
   async getAccommodation(id: string): Promise<any> {
-    const response = await this.client.get(`/api/unterkuenfte/${id}`);
+    const response = await this.client.get(`/unterkuenfte/${id}`);
     return response.data;
   }
 
   async createAccommodation(data: any): Promise<any> {
-    const response = await this.client.post('/api/unterkuenfte', data);
+    const response = await this.client.post('/unterkuenfte', data);
     return response.data;
   }
 
   // LiveKit
   async getLiveKitToken(room: string, displayName: string, avatarUrl?: string): Promise<any> {
-    const response = await this.client.get('/api/livekit/token', {
+    const response = await this.client.get('/livekit/token', {
       params: { room, displayName, avatarUrl }
     });
     return response.data;
