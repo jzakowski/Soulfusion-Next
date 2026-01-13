@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
@@ -33,6 +34,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { sidebarOpen, setSidebarOpen, toggleSidebar } = useUIStore();
   const { user, isAuthenticated } = useAuthStore();
+
+  // Debug: Log user to console
+  useEffect(() => {
+    console.log("AppLayout - User:", user);
+    console.log("AppLayout - displayName:", user?.display_name);
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-background">
