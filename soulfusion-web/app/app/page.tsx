@@ -8,22 +8,26 @@ import { Loader2 } from "lucide-react"
 
 export default function AppPage() {
   const router = useRouter()
-  const { isAuthenticated, isLoading, loadUser } = useAuthStore()
+  const { isAuthenticated, isLoading, loadUser, user } = useAuthStore()
   const [posts, setPosts] = useState<any[]>([])
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hasTriedAuth, setHasTriedAuth] = useState(false)
+  const [isRefreshingUser, setIsRefreshingUser] = useState(false)
 
-  // Load user from server (check session cookie)
+  // Load user from server if authenticated but no user data
   useEffect(() => {
     const checkAuth = async () => {
-      console.log("Checking auth with server...")
+      console.log("Checking auth with server...", { isAuthenticated, hasUser: !!user })
+      setIsRefreshingUser(true)
       try {
         await loadUser()
+        console.log("User loaded successfully")
       } catch (err) {
-        console.log("Not authenticated")
+        console.log("Not authenticated", err)
       } finally {
         setHasTriedAuth(true)
+        setIsRefreshingUser(false)
       }
     }
     checkAuth()
@@ -31,7 +35,7 @@ export default function AppPage() {
 
   // Redirect to landing if not authenticated
   useEffect(() => {
-    console.log("Auth check:", { isLoading, isAuthenticated, hasTriedAuth })
+    console.log("Auth check:", { isLoading, isAuthenticated, hasTriedAuth, hasUser: !!user })
     if (hasTriedAuth && !isLoading && !isAuthenticated) {
       console.log("Redirecting to /")
       router.push("/")
@@ -61,12 +65,12 @@ export default function AppPage() {
     }
   }, [isAuthenticated])
 
-  if (isLoading) {
+  if (isLoading || isRefreshingUser) {
     return (
       <AppLayout>
         <div className="flex min-h-[50vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="ml-2">Auth loading...</span>
+          <span className="ml-2">{isLoading ? "Auth loading..." : "User loading..."}</span>
         </div>
       </AppLayout>
     )
