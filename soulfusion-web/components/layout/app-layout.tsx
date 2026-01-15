@@ -42,7 +42,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background overflow-hidden">
       {/* Mobile Header */}
       <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 lg:hidden">
         <button
@@ -145,12 +145,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Content */}
-      <main className="lg:pl-64">
+      <main className="lg:pl-64 h-screen overflow-hidden">
         {children}
       </main>
 
-      {/* Desktop Quick Actions */}
-      <nav className="fixed bottom-0 right-0 z-40 hidden lg:flex lg:flex-col lg:items-center lg:gap-2 lg:border-l lg:bg-background lg:p-4">
+      {/* Desktop Quick Actions - nicht in Club Rooms anzeigen */}
+      <nav className={`fixed bottom-0 right-0 z-40 hidden lg:flex lg:flex-col lg:items-center lg:gap-2 lg:border-l lg:bg-background lg:p-4 ${pathname?.startsWith('/club/') ? '!hidden' : ''}`}>
         <Link
           href="/settings"
           className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"

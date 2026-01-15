@@ -16,9 +16,10 @@ interface LiveKitRoom {
 
 // Mock rooms - would come from API
 const mockRooms: LiveKitRoom[] = [
-  { id: "1", name: "Game Night", participant_count: 12, is_active: true },
-  { id: "2", name: "Stammtisch", participant_count: 8, is_active: true },
-  { id: "3", name: "Kaffee & Klatsch", participant_count: 5, is_active: true },
+  { id: "spirituelles-wohnzimmer", name: "Spirituelles Wohnzimmer", participant_count: 12, is_active: true },
+  { id: "meditations-raum", name: "Meditations-Raum", participant_count: 5, is_active: true },
+  { id: "stammtisch", name: "Stammtisch", participant_count: 8, is_active: true },
+  { id: "kaffee-klatsch", name: "Kaffee & Klatsch", participant_count: 5, is_active: true },
 ];
 
 export default function ClubPage() {

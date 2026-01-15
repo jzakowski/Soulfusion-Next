@@ -1,14 +1,18 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// Base API path - all requests go through /api prefix
-const API_BASE = '/api';
+// Base API path - use relative path for same-origin requests
+const getApiBase = () => {
+  // Use relative path - works on both client and server
+  // Caddy will route /api/* to Express (port 8080)
+  return '/api';
+};
 
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: API_BASE,
+      baseURL: getApiBase(),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -140,11 +144,72 @@ class ApiClient {
   }
 
   // LiveKit
-  async getLiveKitToken(room: string, displayName: string, avatarUrl?: string): Promise<any> {
-    const response = await this.client.get('/livekit/token', {
-      params: { room, displayName, avatarUrl }
+  async getLiveKitToken(params: { room: string; displayName?: string; avatarUrl?: string }): Promise<any> {
+    const response = await this.client.post('/livekit/join', params);
+    return response.data;
+  }
+
+  // Breakout Rooms - matching existing backend routes
+  async createBreakoutSession(params: {
+    mainRoom: string;
+    roomCount: number;
+    durationMinutes?: number;
+    rooms?: Array<{ id: string; name: string; roomName: string; maxParticipants?: number }>;
+  }): Promise<any> {
+    const response = await this.client.post(`/rooms/${params.mainRoom}/breakout`, {
+      numberOfRooms: params.roomCount,
+      durationMinutes: params.durationMinutes || 30,
+      rooms: params.rooms || this.generateDefaultRooms(params.roomCount),
     });
     return response.data;
+  }
+
+  async getBreakoutSession(mainRoom: string): Promise<any> {
+    const response = await this.client.get(`/rooms/${mainRoom}/breakout`);
+    return response.data;
+  }
+
+  async endBreakoutSession(mainRoom: string): Promise<any> {
+    const response = await this.client.delete(`/rooms/${mainRoom}/breakout`);
+    return response.data;
+  }
+
+  async extendBreakoutTimer(mainRoom: string, minutes: number): Promise<any> {
+    const response = await this.client.put(`/rooms/${mainRoom}/breakout/extend`, {
+      additionalMinutes: minutes,
+    });
+    return response.data;
+  }
+
+  async moveBreakoutParticipant(
+    mainRoom: string,
+    breakoutId: string,
+    participantId: string,
+    participantName: string,
+    participantAvatar?: string
+  ): Promise<any> {
+    const response = await this.client.post(`/rooms/${mainRoom}/breakout/${breakoutId}/participants`, {
+      participantId,
+      participantName,
+      participantAvatar,
+    });
+    return response.data;
+  }
+
+  async removeBreakoutParticipant(mainRoom: string, breakoutId: string, participantId: string): Promise<any> {
+    const response = await this.client.delete(`/rooms/${mainRoom}/breakout/${breakoutId}/participants/${participantId}`);
+    return response.data;
+  }
+
+  // Helper to generate default room names
+  private generateDefaultRooms(count: number): Array<{ id: string; name: string; roomName: string; maxParticipants: number }> {
+    const colors = ['Rot', 'Blau', 'Grün', 'Gelb', 'Orange', 'Lila', 'Pink', 'Türkis', 'Grau', 'Braun'];
+    return Array.from({ length: count }, (_, i) => ({
+      id: `room-${i + 1}`,
+      name: `Raum ${colors[i] || i + 1}`,
+      roomName: `breakout-${i + 1}`,
+      maxParticipants: 0,
+    }));
   }
 
   // Media Upload

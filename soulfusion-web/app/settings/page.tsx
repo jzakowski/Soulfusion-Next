@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   User,
-  Bell,
   Lock,
   Eye,
   Palette,
@@ -27,20 +26,26 @@ import { apiClient } from "@/lib/api/client";
 
 type Tab = "profile" | "notifications" | "privacy" | "appearance" | "account";
 
-const tabs: { id: Tab; label: string; icon: any }[] = [
-  { id: "profile", label: "Profil", icon: User },
-  { id: "notifications", label: "Benachrichtigungen", icon: Bell },
-  { id: "privacy", label: "Privatsphäre", icon: Lock },
-  { id: "appearance", label: "Darstellung", icon: Palette },
-  { id: "account", label: "Konto", icon: User },
-];
-
 export default function SettingsPage() {
   const router = useRouter();
   const { user, logout, setUser } = useAuthStore();
   const { addToast } = useUIStore();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
+
+  // Define tabs inside component for React context
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "profile", label: "Profil", icon: <User className="h-5 w-5" /> },
+    { id: "notifications", label: "Benachrichtigung", icon: (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+    ) },
+    { id: "privacy", label: "Privatsphäre", icon: <Lock className="h-5 w-5" /> },
+    { id: "appearance", label: "Darstellung", icon: <Palette className="h-5 w-5" /> },
+    { id: "account", label: "Konto", icon: <User className="h-5 w-5" /> },
+  ];
 
   // Profile form state
   const [profileData, setProfileData] = useState({
@@ -144,8 +149,8 @@ export default function SettingsPage() {
                       : "hover:bg-accent"
                   }`}
                 >
-                  <tab.icon className="h-5 w-5" />
-                  <span className="font-medium">{tab.label}</span>
+                  <span className="flex-shrink-0">{tab.icon}</span>
+                  <span className="font-medium whitespace-nowrap">{tab.label}</span>
                 </button>
               ))}
             </nav>
