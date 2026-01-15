@@ -1,169 +1,50 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, Users, TrendingUp, Clock } from "lucide-react";
+import { Sparkles, Search, Users, Clock, Plus } from "lucide-react";
 import Link from "next/link";
+import { useBubbleStore } from "@/lib/stores/bubble-store";
+import type { Bubble } from "@/lib/services/bubble-service";
 
-// Mock bubbles data - would come from API
-const mockBubbles = [
-  {
-    id: "1",
-    name: "Reisen",
-    description: "Entdecke die Welt zusammen mit anderen",
-    color: "#3b82f6",
-    icon: "✈️",
-    member_count: 1234,
-    post_count: 5678,
-    is_joined: false,
-  },
-  {
-    id: "2",
-    name: "Musik",
-    description: "Teile deine Leidenschaft für Musik",
-    color: "#8b5cf6",
-    icon: "🎵",
-    member_count: 892,
-    post_count: 3421,
-    is_joined: true,
-  },
-  {
-    id: "3",
-    name: "Sport & Fitness",
-    description: "Bleib fit und aktiv gemeinsam",
-    color: "#10b981",
-    icon: "💪",
-    member_count: 2103,
-    post_count: 7892,
-    is_joined: false,
-  },
-  {
-    id: "4",
-    name: "Essen & Kochen",
-    description: "Rezepte, Tipps und kulinarische Entdeckungen",
-    color: "#f59e0b",
-    icon: "🍳",
-    member_count: 1567,
-    post_count: 4523,
-    is_joined: false,
-  },
-  {
-    id: "5",
-    name: "Kunst & Kultur",
-    description: "Kreative Ausdrucksformen und kulturelle Erlebnisse",
-    color: "#ec4899",
-    icon: "🎨",
-    member_count: 743,
-    post_count: 2189,
-    is_joined: true,
-  },
-  {
-    id: "6",
-    name: "Natur & Outdoor",
-    description: "Abenteuer in der großen weiten Welt",
-    color: "#06b6d4",
-    icon: "🌲",
-    member_count: 1892,
-    post_count: 5432,
-    is_joined: false,
-  },
-  {
-    id: "7",
-    name: "Technologie",
-    description: "Tech-Talk, Innovation und digitales Leben",
-    color: "#6366f1",
-    icon: "💻",
-    member_count: 2341,
-    post_count: 8765,
-    is_joined: false,
-  },
-  {
-    id: "8",
-    name: "Spiritualität",
-    description: "Innere Ruhe und spirituelle Entwicklung",
-    color: "#a855f7",
-    icon: "🧘",
-    member_count: 654,
-    post_count: 1987,
-    is_joined: false,
-  },
-  {
-    id: "9",
-    name: "Gaming",
-    description: "Zocker united - Spiele und Gaming Community",
-    color: "#ef4444",
-    icon: "🎮",
-    member_count: 3456,
-    post_count: 9876,
-    is_joined: false,
-  },
-  {
-    id: "10",
-    name: "Books & Literature",
-    description: "Bücherwürmer und Literaturfans",
-    color: "#84cc16",
-    icon: "📚",
-    member_count: 521,
-    post_count: 1432,
-    is_joined: false,
-  },
-  {
-    id: "11",
-    name: "Photography",
-    description: "Fotografie-Enthusiasten und Bildkünstler",
-    color: "#f97316",
-    icon: "📸",
-    member_count: 876,
-    post_count: 2987,
-    is_joined: false,
-  },
-  {
-    id: "12",
-    name: "Pets & Animals",
-    description: "Tierliebhaber und Haustier-Community",
-    color: "#14b8a6",
-    icon: "🐾",
-    member_count: 1923,
-    post_count: 5432,
-    is_joined: false,
-  },
-];
-
-type FilterType = "all" | "joined" | "trending";
+type FilterType = "all" | "joined";
 
 export default function BubblesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-  const [bubbles, setBubbles] = useState(mockBubbles);
+
+  const {
+    bubbles,
+    bubblesLoading,
+    fetchBubbles,
+    joinBubble,
+    leaveBubble,
+  } = useBubbleStore();
+
+  useEffect(() => {
+    fetchBubbles();
+  }, [fetchBubbles]);
 
   const filteredBubbles = bubbles
     .filter((bubble) => {
-      if (activeFilter === "joined") return bubble.is_joined;
-      return true;
+      if (activeFilter === "joined") return bubble.is_member;
+      return bubble.is_public;
     })
     .filter((bubble) =>
       bubble.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bubble.description.toLowerCase().includes(searchQuery.toLowerCase())
+      (bubble.description?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     );
 
-  const toggleJoin = (bubbleId: string) => {
-    setBubbles(prev =>
-      prev.map(bubble =>
-        bubble.id === bubbleId
-          ? {
-              ...bubble,
-              is_joined: !bubble.is_joined,
-              member_count: bubble.is_joined
-                ? bubble.member_count - 1
-                : bubble.member_count + 1,
-            }
-          : bubble
-      )
-    );
+  const toggleJoin = async (bubbleId: string, isMember: boolean) => {
+    if (isMember) {
+      await leaveBubble(bubbleId);
+    } else {
+      await joinBubble(bubbleId);
+    }
   };
 
   return (
@@ -183,13 +64,16 @@ export default function BubblesPage() {
             <div>
               <h3 className="flex items-center gap-2 font-semibold">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Neue Bubble erstellen?
+                Eigene Bubble erstellen?
               </h3>
               <p className="text-sm text-muted-foreground">
                 Starte deine eigene Community rund um dein Interesse
               </p>
             </div>
-            <Button>Erstellen</Button>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Erstellen
+            </Button>
           </CardContent>
         </Card>
 
@@ -222,18 +106,16 @@ export default function BubblesPage() {
           >
             Beigetreten
           </Button>
-          <Button
-            variant={activeFilter === "trending" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveFilter("trending")}
-          >
-            <TrendingUp className="mr-1 h-4 w-4" />
-            Trending
-          </Button>
         </div>
 
         {/* Bubbles Grid */}
-        {filteredBubbles.length === 0 ? (
+        {bubblesLoading ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">Lade Bubbles...</p>
+            </CardContent>
+          </Card>
+        ) : filteredBubbles.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Sparkles className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
@@ -268,16 +150,18 @@ export default function BubblesPage() {
                             color: bubble.color,
                           }}
                         >
-                          {bubble.is_joined ? "Mitglied" : "Community"}
+                          {bubble.is_member ? "Mitglied" : "Community"}
                         </Badge>
                       </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                  <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
-                    {bubble.description}
-                  </p>
+                  {bubble.description && (
+                    <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
+                      {bubble.description}
+                    </p>
+                  )}
 
                   <div className="mb-4 flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
@@ -292,15 +176,15 @@ export default function BubblesPage() {
 
                   <div className="flex gap-2">
                     <Button
-                      variant={bubble.is_joined ? "outline" : "default"}
+                      variant={bubble.is_member ? "outline" : "default"}
                       className="flex-1"
-                      onClick={() => toggleJoin(bubble.id)}
+                      onClick={() => toggleJoin(bubble.id, bubble.is_member || false)}
                     >
-                      {bubble.is_joined ? "Verlassen" : "Beitreten"}
+                      {bubble.is_member ? "Verlassen" : "Beitreten"}
                     </Button>
                     <Button variant="outline" asChild>
-                      <Link href={`/bubbles/${bubble.id}`}>
-                        Ansehen
+                      <Link href={`/bubbles/feed/${bubble.id}`}>
+                        Feed
                       </Link>
                     </Button>
                   </div>
