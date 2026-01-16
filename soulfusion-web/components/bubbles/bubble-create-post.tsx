@@ -14,11 +14,13 @@ interface BubbleCreatePostProps {
   bubbleId: string;
   onClose: () => void;
   onPostCreated: () => void;
+  allowBubbleSelection?: boolean; // Allow user to change bubble
 }
 
-export function BubbleCreatePost({ bubbleId, onClose, onPostCreated }: BubbleCreatePostProps) {
-  const { creatingPost, createPost } = useBubbleStore();
+export function BubbleCreatePost({ bubbleId, onClose, onPostCreated, allowBubbleSelection = false }: BubbleCreatePostProps) {
+  const { creatingPost, createPost, bubbles } = useBubbleStore();
 
+  const [selectedBubbleId, setSelectedBubbleId] = useState(bubbleId);
   const [content, setContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -68,7 +70,7 @@ export function BubbleCreatePost({ bubbleId, onClose, onPostCreated }: BubbleCre
     }
 
     // Create post
-    const result = await createPost(bubbleId, content, imageUrls, isAnonymous);
+    const result = await createPost(selectedBubbleId, content, imageUrls, isAnonymous);
 
     if (result) {
       onPostCreated();
@@ -87,6 +89,25 @@ export function BubbleCreatePost({ bubbleId, onClose, onPostCreated }: BubbleCre
         </div>
 
         <div className="p-4 space-y-4">
+          {/* Bubble Selector (if allowed) */}
+          {allowBubbleSelection && (
+            <div>
+              <Label htmlFor="bubble">Bubble</Label>
+              <select
+                id="bubble"
+                value={selectedBubbleId}
+                onChange={(e) => setSelectedBubbleId(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border rounded-lg"
+              >
+                {bubbles.filter(b => b.is_visible !== false && b.is_hidden !== true).map((bubble) => (
+                  <option key={bubble.id} value={bubble.id}>
+                    {bubble.icon} {bubble.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Anonymous Toggle */}
           <div className="flex items-center justify-between">
             <div>

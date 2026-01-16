@@ -6,6 +6,7 @@ import type {
   BubbleComment,
   TrendingHashtag,
   FeedResponse,
+  BubblePreference,
 } from '@/lib/services/bubble-service';
 import { bubbleService } from '@/lib/services/bubble-service';
 
@@ -15,6 +16,10 @@ interface BubbleState {
   currentBubble: Bubble | null;
   bubblesLoading: boolean;
   bubblesError: string | null;
+
+  // Bubble Preferences
+  bubblePreferences: BubblePreference[];
+  preferencesLoading: boolean;
 
   // Feed
   feedPosts: BubblePost[];
@@ -46,15 +51,20 @@ interface BubbleStore extends BubbleState {
   joinBubble: (bubbleId: string) => Promise<void>;
   leaveBubble: (bubbleId: string) => Promise<void>;
 
+  // Bubble Preferences actions
+  fetchBubblePreferences: () => Promise<void>;
+  updateBubblePreference: (preferenceId: string, updates: { is_visible?: boolean; is_hidden?: boolean; is_pinned?: boolean }) => Promise<void>;
+
   // Feed actions
   setFeedFilter: (filter: 'all' | 'friends' | 'anonymous') => void;
+  fetchUnifiedFeed: (cursor?: string) => Promise<void>;
   fetchFeed: (bubbleId: string, cursor?: string) => Promise<void>;
   fetchMoreFeed: () => Promise<void>;
   resetFeed: () => void;
 
-  // Trending actions
-  fetchTrendingFeed: (bubbleId: string, timeframe?: '24h' | '7d' | '30d') => Promise<void>;
-  fetchLoudestFeed: (bubbleId: string) => Promise<void>;
+  // Trending actions (unified, no bubble ID needed)
+  fetchTrendingFeed: (timeframe?: '24h' | '7d' | '30d') => Promise<void>;
+  fetchLoudestFeed: () => Promise<void>;
   fetchTrendingHashtags: (timeframe?: '24h' | '7d' | '30d') => Promise<void>;
 
   // Post actions
@@ -85,6 +95,9 @@ export const useBubbleStore = create<BubbleStore>((set, get) => ({
   currentBubble: null,
   bubblesLoading: false,
   bubblesError: null,
+
+  bubblePreferences: [],
+  preferencesLoading: false,
 
   feedPosts: [],
   feedFilter: 'all',
@@ -137,9 +150,61 @@ export const useBubbleStore = create<BubbleStore>((set, get) => ({
     set({ bubbles: updatedBubbles });
   },
 
+  // ========== BUBBLE PREFERENCES ACTIONS ==========
+
+  fetchBubblePreferences: async () => {
+    set({ preferencesLoading: true });
+    try {
+      const response = await bubbleService.getBubblePreferences();
+      set({ bubblePreferences: response.items, preferencesLoading: false });
+    } catch (error) {
+      set({ preferencesLoading: false });
+      console.error('Failed to fetch bubble preferences', error);
+    }
+  },
+
+  updateBubblePreference: async (preferenceId, updates) => {
+    try {
+      const updated = await bubbleService.updateBubblePreference(preferenceId, updates);
+      set((state) => ({
+        bubblePreferences: state.bubblePreferences.map((p) =>
+          p.id === preferenceId ? { ...p, ...updated } : p
+        ),
+      }));
+    } catch (error) {
+      console.error('Failed to update bubble preference', error);
+    }
+  },
+
   // ========== FEED ACTIONS ==========
 
   setFeedFilter: (filter) => set({ feedFilter: filter, feedPosts: [], feedCursor: null }),
+
+  fetchUnifiedFeed: async (cursor) => {
+    const { feedFilter } = get();
+
+    // Reset if no cursor (new fetch)
+    if (!cursor) {
+      set({ feedPosts: [], feedCursor: null, feedHasMore: true });
+    }
+
+    set({ feedLoading: true, feedError: null });
+    try {
+      const response = await bubbleService.getUnifiedFeed(feedFilter, cursor);
+      const { feedPosts } = get();
+
+      const newPosts = cursor ? [...feedPosts, ...response.items] : response.items;
+
+      set({
+        feedPosts: newPosts,
+        feedCursor: response.cursor || null,
+        feedHasMore: !!response.cursor,
+        feedLoading: false,
+      });
+    } catch (error) {
+      set({ feedError: 'Failed to load feed', feedLoading: false });
+    }
+  },
 
   fetchFeed: async (bubbleId, cursor) => {
     const { feedFilter } = get();
@@ -168,30 +233,30 @@ export const useBubbleStore = create<BubbleStore>((set, get) => ({
   },
 
   fetchMoreFeed: async () => {
-    const { feedCursor, currentBubble } = get();
-    if (!feedCursor || !currentBubble || !get().feedHasMore) return;
+    const { feedCursor } = get();
+    if (!feedCursor || !get().feedHasMore) return;
 
-    await get().fetchFeed(currentBubble.id, feedCursor);
+    await get().fetchUnifiedFeed(feedCursor);
   },
 
   resetFeed: () => set({ feedPosts: [], feedCursor: null, feedHasMore: true, feedError: null }),
 
   // ========== TRENDING ACTIONS ==========
 
-  fetchTrendingFeed: async (bubbleId, timeframe = '24h') => {
+  fetchTrendingFeed: async (timeframe = '24h') => {
     set({ trendingLoading: true });
     try {
-      const response = await bubbleService.getTrendingFeed(bubbleId, timeframe);
+      const response = await bubbleService.getTrendingFeed(timeframe);
       set({ trendingPosts: response.items, trendingLoading: false });
     } catch (error) {
       set({ trendingLoading: false });
     }
   },
 
-  fetchLoudestFeed: async (bubbleId) => {
+  fetchLoudestFeed: async () => {
     set({ loudestLoading: true });
     try {
-      const response = await bubbleService.getLoudestFeed(bubbleId);
+      const response = await bubbleService.getLoudestFeed();
       set({ loudestPosts: response.items, loudestLoading: false });
     } catch (error) {
       set({ loudestLoading: false });

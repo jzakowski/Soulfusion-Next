@@ -82,12 +82,26 @@ export function BubblePostCard({ post, onClick }: BubblePostCardProps) {
                 <span className="ml-2 text-xs text-gray-500">(anonym)</span>
               )}
             </p>
-            <p className="text-xs text-gray-500">
-              {formatDistanceToNow(new Date(post.created_at), {
-                addSuffix: true,
-                locale: de,
-              })}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-gray-500">
+                {formatDistanceToNow(new Date(post.created_at), {
+                  addSuffix: true,
+                  locale: de,
+                })}
+              </p>
+              {/* Bubble Tag */}
+              {post.bubble_name && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span
+                    className="text-xs font-medium"
+                    style={{ color: post.bubble_color || '#6366f1' }}
+                  >
+                    {post.bubble_icon || ''} {post.bubble_name}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
         <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleReport(e); }}>

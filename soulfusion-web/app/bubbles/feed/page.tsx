@@ -1,30 +1,30 @@
+// Unified Bubbles Feed - Threads-style algorithmic feed
 "use client"
 
 import { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Heart, MessageCircle, Share2, TrendingUp, Hash, Filter } from "lucide-react";
-import Link from "next/link";
+import { Plus, TrendingUp, Hash, Settings, MessageCircle, SlidersHorizontal } from "lucide-react";
 import { useBubbleStore } from "@/lib/stores/bubble-store";
 import { BubblePostCard } from "@/components/bubbles/bubble-post-card";
 import { BubbleCreatePost } from "@/components/bubbles/bubble-create-post";
 import { BubblePostModal } from "@/components/bubbles/bubble-post-modal";
+import { BubblePreferencesModal } from "@/components/bubbles/bubble-preferences-modal";
 import type { BubblePost } from "@/lib/services/bubble-service";
+import { Bubble } from "@/lib/services/bubble-service";
 
-export default function BubbleFeedPage() {
-  const params = useParams();
-  const router = useRouter();
-  const bubbleId = params.id as string;
-
+export default function UnifiedBubbleFeedPage() {
   const [selectedPost, setSelectedPost] = useState<BubblePost | null>(null);
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showBubbleSelector, setShowBubbleSelector] = useState(false);
+  const [showBubblePreferences, setShowBubblePreferences] = useState(false);
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'loudest'>('feed');
+  const [selectedBubbleId, setSelectedBubbleId] = useState<string | undefined>(undefined);
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const {
+    bubbles,
     currentBubble,
     feedPosts,
     feedLoading,
@@ -36,28 +36,20 @@ export default function BubbleFeedPage() {
     loudestLoading,
     trendingHashtags,
     setFeedFilter,
-    setCurrentBubble,
-    fetchFeed,
+    fetchUnifiedFeed,
     fetchMoreFeed,
     fetchTrendingFeed,
     fetchLoudestFeed,
     fetchTrendingHashtags,
+    fetchBubbles,
     resetFeed,
   } = useBubbleStore();
 
-  // Load bubble and feed on mount
+  // Load initial data
   useEffect(() => {
     const loadInitialData = async () => {
-      // Fetch bubble details
-      const bubble = await fetch(`/api/bubbles/${bubbleId}`).then(r => r.json()).catch(() => null);
-      if (bubble) {
-        setCurrentBubble(bubble);
-      }
-
-      // Fetch feed
-      await fetchFeed(bubbleId);
-
-      // Fetch trending hashtags
+      await fetchBubbles();
+      await fetchUnifiedFeed();
       await fetchTrendingHashtags();
     };
 
@@ -66,7 +58,7 @@ export default function BubbleFeedPage() {
     return () => {
       resetFeed();
     };
-  }, [bubbleId]);
+  }, []);
 
   // Infinite scroll
   useEffect(() => {
@@ -100,13 +92,28 @@ export default function BubbleFeedPage() {
     }
   }, [activeTab]);
 
+  // Reload feed when bubble filter changes
+  useEffect(() => {
+    if (activeTab === 'feed') {
+      fetchUnifiedFeed();
+    }
+  }, [selectedBubbleId, feedFilter]);
+
   const handlePostCreated = () => {
     setShowCreatePost(false);
-    fetchFeed(bubbleId);
+    fetchUnifiedFeed();
+  };
+
+  const handleBubbleSelect = (bubble: Bubble) => {
+    setSelectedBubbleId(bubble.id);
+    setShowBubbleSelector(false);
   };
 
   const currentPosts = activeTab === 'feed' ? feedPosts : activeTab === 'trending' ? trendingPosts : loudestPosts;
   const currentLoading = activeTab === 'feed' ? feedLoading : activeTab === 'trending' ? trendingLoading : loudestLoading;
+
+  // Get visible bubbles for selector
+  const visibleBubbles = bubbles.filter(b => b.is_visible !== false && b.is_hidden !== true);
 
   return (
     <AppLayout>
@@ -114,27 +121,63 @@ export default function BubbleFeedPage() {
         {/* Header */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/bubbles">
-                  <ArrowLeft className="h-5 w-5" />
-                </Link>
-              </Button>
-              {currentBubble && (
-                <div className="flex items-center gap-3 flex-1">
-                  <span className="text-3xl">{currentBubble.icon}</span>
-                  <div>
-                    <h1 className="text-xl font-bold">{currentBubble.name}</h1>
-                    <p className="text-sm text-gray-500">
-                      {currentBubble.member_count.toLocaleString()} Mitglieder
-                    </p>
-                  </div>
-                </div>
-              )}
-              <Button onClick={() => setShowCreatePost(true)}>
-                Erstellen
-              </Button>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold">Bubbles Feed</h1>
+                <p className="text-sm text-gray-500">
+                  {selectedBubbleId
+                    ? `Gefiltert: ${visibleBubbles.find(b => b.id === selectedBubbleId)?.name || 'Bubble'}`
+                    : 'Alle deine Bubbles'}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBubbleSelector(!showBubbleSelector)}
+                >
+                  {selectedBubbleId
+                    ? visibleBubbles.find(b => b.id === selectedBubbleId)?.name || 'Filter'
+                    : 'Filter'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowBubblePreferences(true)}
+                  title="Bubble-Einstellungen"
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                </Button>
+                <Button onClick={() => setShowCreatePost(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Erstellen
+                </Button>
+              </div>
             </div>
+
+            {/* Bubble Filter Bar */}
+            {showBubbleSelector && (
+              <div className="mt-4 flex flex-wrap gap-2 pb-2 border-b">
+                <Button
+                  variant={!selectedBubbleId ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedBubbleId(undefined)}
+                >
+                  Alle
+                </Button>
+                {visibleBubbles.map((bubble) => (
+                  <Button
+                    key={bubble.id}
+                    variant={selectedBubbleId === bubble.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleBubbleSelect(bubble)}
+                  >
+                    <span className="mr-1">{bubble.icon}</span>
+                    {bubble.name}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -215,13 +258,13 @@ export default function BubbleFeedPage() {
                 </h3>
                 <div className="space-y-2">
                   {trendingHashtags.slice(0, 5).map((tag) => (
-                    <Link
+                    <button
                       key={tag.hashtag}
-                      href={`/bubbles/feed/${bubbleId}?hashtag=${tag.hashtag}`}
-                      className="block text-sm text-gray-600 hover:text-primary transition-colors"
+                      className="block text-sm text-gray-600 hover:text-primary transition-colors w-full text-left"
+                      onClick={() => {/* TODO: Implement hashtag search */}}
                     >
                       #{tag.hashtag}
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </CardContent>
@@ -241,7 +284,7 @@ export default function BubbleFeedPage() {
             <Card>
               <CardContent className="py-12 text-center text-gray-500">
                 <MessageCircle className="mx-auto mb-4 h-12 w-12" />
-                <p>Noch keine Beiträge in dieser Bubble.</p>
+                <p>Noch keine Beiträge.</p>
                 <p>Sei der Erste!</p>
               </CardContent>
             </Card>
@@ -258,7 +301,7 @@ export default function BubbleFeedPage() {
           )}
 
           {/* Infinite scroll sentinel */}
-          {feedHasMore && (
+          {activeTab === 'feed' && feedHasMore && (
             <div ref={observerTarget} className="py-8 text-center text-gray-500">
               {feedLoading ? 'Lade mehr...' : 'Scroll für mehr'}
             </div>
@@ -268,9 +311,17 @@ export default function BubbleFeedPage() {
         {/* Create Post Modal */}
         {showCreatePost && (
           <BubbleCreatePost
-            bubbleId={bubbleId}
+            bubbleId={currentBubble?.id || bubbles[0]?.id || ''}
+            allowBubbleSelection={true}
             onClose={() => setShowCreatePost(false)}
             onPostCreated={handlePostCreated}
+          />
+        )}
+
+        {/* Bubble Preferences Modal */}
+        {showBubblePreferences && (
+          <BubblePreferencesModal
+            onClose={() => setShowBubblePreferences(false)}
           />
         )}
 

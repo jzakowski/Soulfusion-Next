@@ -12,7 +12,32 @@ export interface Bubble {
   post_count: number;
   is_public: boolean;
   is_member?: boolean;
+  is_visible?: boolean;
+  is_hidden?: boolean;
+  is_pinned?: boolean;
+  engagement_score?: number;
   created_at: string;
+}
+
+export interface BubblePreference {
+  id: string;
+  user_id: string;
+  bubble_id: string;
+  is_visible: boolean;
+  is_hidden: boolean;
+  is_pinned: boolean;
+  engagement_score: number;
+  posts_count: number;
+  likes_count: number;
+  comments_count: number;
+  views_count: number;
+  last_interacted_at: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  icon: string;
+  color: string;
+  description?: string;
 }
 
 export interface BubblePost {
@@ -33,6 +58,13 @@ export interface BubblePost {
   longitude?: number;
   created_at: string;
   updated_at: string;
+  // Bubble info (for unified feed)
+  bubble_name?: string;
+  bubble_icon?: string;
+  bubble_color?: string;
+  // User engagement score
+  user_bubble_engagement?: number;
+  ranking_score?: number;
   // Safe display fields
   display_name?: string;
   display_name_safe?: string;
@@ -117,10 +149,99 @@ class BubbleService {
     return response.data;
   }
 
-  // ========== FEED ==========
+  // ========== USER PREFERENCES ==========
 
   /**
-   * Get feed with optional filter
+   * Get user's bubble preferences
+   */
+  async getBubblePreferences(): Promise<{ items: BubblePreference[] }> {
+    const response = await apiClient.getClient().get<{ items: BubblePreference[] }>(
+      '/bubbles/preferences'
+    );
+    return response.data;
+  }
+
+  /**
+   * Update bubble preference
+   * @param preferenceId - Preference ID
+   * @param updates - Preference updates
+   */
+  async updateBubblePreference(
+    preferenceId: string,
+    updates: {
+      is_visible?: boolean;
+      is_hidden?: boolean;
+      is_pinned?: boolean;
+    }
+  ): Promise<BubblePreference> {
+    const response = await apiClient.getClient().put<BubblePreference>(
+      `/bubbles/preferences/${preferenceId}`,
+      updates
+    );
+    return response.data;
+  }
+
+  // ========== UNIFIED FEED ==========
+
+  /**
+   * Get unified feed from all user's bubbles (Threads-style algorithm)
+   * @param filter - 'all' | 'friends' | 'anonymous'
+   * @param cursor - Pagination cursor
+   * @param limit - Items per page
+   * @param bubbleId - Optional: filter by specific bubble
+   */
+  async getUnifiedFeed(
+    filter: 'all' | 'friends' | 'anonymous' = 'all',
+    cursor?: string,
+    limit = 20,
+    bubbleId?: string
+  ): Promise<FeedResponse> {
+    const params: any = { filter, limit };
+    if (cursor) params.cursor = cursor;
+    if (bubbleId) params.bubble_id = bubbleId;
+
+    const response = await apiClient.getClient().get<FeedResponse>(
+      '/bubbles/feed',
+      { params }
+    );
+    return response.data;
+  }
+
+  /**
+   * Get trending feed (all bubbles)
+   * @param timeframe - '24h' | '7d' | '30d'
+   * @param limit - Items per page
+   */
+  async getTrendingFeed(
+    timeframe: '24h' | '7d' | '30d' = '24h',
+    limit = 20
+  ): Promise<{ items: BubblePost[] }> {
+    const response = await apiClient.getClient().get<{ items: BubblePost[] }>(
+      '/bubbles/feed/trending',
+      { params: { timeframe, limit } }
+    );
+    return response.data;
+  }
+
+  /**
+   * Get loudest feed (most commented, all bubbles)
+   * @param limit - Items per page
+   */
+  async getLoudestFeed(
+    limit = 20
+  ): Promise<{ items: BubblePost[] }> {
+    const response = await apiClient.getClient().get<{ items: BubblePost[] }>(
+      '/bubbles/feed/loudest',
+      { params: { limit } }
+    );
+    return response.data;
+  }
+
+  // ========== FEED (LEGACY - kept for compatibility) ==========
+
+  /**
+   * Get feed with optional filter (legacy - bubble-specific)
+   * @deprecated Use getUnifiedFeed instead
    * @param bubbleId - Bubble ID
    * @param filter - 'all' | 'friends' | 'anonymous'
    * @param cursor - Pagination cursor
@@ -132,23 +253,18 @@ class BubbleService {
     cursor?: string,
     limit = 20
   ): Promise<FeedResponse> {
-    const params: any = { filter, limit };
-    if (cursor) params.cursor = cursor;
-
-    const response = await apiClient.getClient().get<FeedResponse>(
-      `/bubbles/${bubbleId}/feed`,
-      { params }
-    );
-    return response.data;
+    // Redirect to unified feed with bubble filter
+    return this.getUnifiedFeed(filter, cursor, limit, bubbleId);
   }
 
   /**
-   * Get trending feed
+   * Get trending feed by bubble (legacy - for specific bubble views)
+   * @deprecated Use getTrendingFeed() for unified feed
    * @param bubbleId - Bubble ID
    * @param timeframe - '24h' | '7d' | '30d'
    * @param limit - Items per page
    */
-  async getTrendingFeed(
+  async getTrendingFeedByBubble(
     bubbleId: string,
     timeframe: '24h' | '7d' | '30d' = '24h',
     limit = 20
@@ -161,11 +277,12 @@ class BubbleService {
   }
 
   /**
-   * Get loudest feed (most commented)
+   * Get loudest feed by bubble (legacy - for specific bubble views)
+   * @deprecated Use getLoudestFeed() for unified feed
    * @param bubbleId - Bubble ID
    * @param limit - Items per page
    */
-  async getLoudestFeed(
+  async getLoudestFeedByBubble(
     bubbleId: string,
     limit = 20
   ): Promise<{ items: BubblePost[] }> {
