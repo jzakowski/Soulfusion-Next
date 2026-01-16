@@ -1,7 +1,7 @@
 // Bubbles API - Unified Social Feed with Threads-Style Algorithm
-const express = require('express');
-const { requireAuth } = require('../middleware/auth');
-const { pgPool } = require('../db/postgres');
+import express from 'express';
+import { pool } from '../db.js';
+import { requireAuth } from '../middleware/auth.js';
 const router = express.Router();
 
 // ========== BUBBLES (Communities) ==========
@@ -9,7 +9,7 @@ const router = express.Router();
 // GET /api/bubbles - List all bubbles
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         b.*,
         EXISTS(SELECT 1 FROM bubble_memberships WHERE bubble_id = b.id AND user_id = $1) as is_member,
@@ -33,7 +33,7 @@ router.get('/', requireAuth, async (req, res) => {
 // GET /api/bubbles/:id - Get bubble details
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         b.*,
         EXISTS(SELECT 1 FROM bubble_memberships WHERE bubble_id = b.id AND user_id = $1) as is_member
@@ -55,7 +55,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 // POST /api/bubbles/:id/join - Join a bubble
 router.post('/:id/join', requireAuth, async (req, res) => {
   try {
-    const client = await pgPool.connect();
+    const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
@@ -107,7 +107,7 @@ router.post('/:id/join', requireAuth, async (req, res) => {
 // DELETE /api/bubbles/:id/join - Leave a bubble
 router.delete('/:id/join', requireAuth, async (req, res) => {
   try {
-    const client = await pgPool.connect();
+    const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
@@ -140,7 +140,7 @@ router.delete('/:id/join', requireAuth, async (req, res) => {
 // GET /api/bubbles/preferences - Get user's bubble preferences
 router.get('/preferences', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         ubp.*,
         b.name,
@@ -168,7 +168,7 @@ router.put('/preferences/:id', requireAuth, async (req, res) => {
   try {
     const { is_visible, is_hidden, is_pinned } = req.body;
 
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       UPDATE user_bubble_preferences
       SET
         is_visible = COALESCE($2, is_visible),
@@ -277,7 +277,7 @@ router.get('/feed', requireAuth, async (req, res) => {
     `;
     params.push(parsedLimit + 1); // Fetch one extra to check for more
 
-    const { rows } = await pgPool.query(query, params);
+    const { rows } = await pool.query(query, params);
 
     const hasMore = rows.length > parsedLimit;
     const items = hasMore ? rows.slice(0, -1) : rows;
@@ -305,7 +305,7 @@ router.get('/feed/trending', requireAuth, async (req, res) => {
     if (timeframe === '7d') interval = '7 days';
     if (timeframe === '30d') interval = '30 days';
 
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         bp.*,
         b.name as bubble_name,
@@ -346,7 +346,7 @@ router.get('/feed/trending', requireAuth, async (req, res) => {
 // GET /api/bubbles/feed/loudest - "Loudest" feed (most comments, all bubbles)
 router.get('/feed/loudest', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         bp.*,
         b.name as bubble_name,
@@ -393,7 +393,7 @@ router.post('/posts', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'bubble_id and content are required' });
     }
 
-    const client = await pgPool.connect();
+    const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
@@ -446,7 +446,7 @@ router.post('/posts', requireAuth, async (req, res) => {
       await client.query('COMMIT');
 
       // Fetch full post with user data
-      const { rows: fullPosts } = await pgPool.query(`
+      const { rows: fullPosts } = await pool.query(`
         SELECT
           bp.*,
           b.name as bubble_name,
@@ -481,14 +481,14 @@ router.post('/posts', requireAuth, async (req, res) => {
 router.get('/posts/:id', requireAuth, async (req, res) => {
   try {
     // Track view engagement
-    await pgPool.query(`
+    await pool.query(`
       INSERT INTO user_bubble_preferences (user_id, bubble_id, is_visible)
       VALUES ($1, (SELECT bubble_id FROM bubble_posts WHERE id = $2), true)
       ON CONFLICT (user_id, bubble_id) DO UPDATE SET
         views_count = user_bubble_preferences.views_count + 1
     `, [req.user.id, req.params.id]);
 
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         bp.*,
         b.name as bubble_name,
@@ -526,7 +526,7 @@ router.put('/posts/:id', requireAuth, async (req, res) => {
   try {
     const { content, media_urls } = req.body;
 
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       UPDATE bubble_posts
       SET
         content = COALESCE($2, content),
@@ -552,7 +552,7 @@ router.put('/posts/:id', requireAuth, async (req, res) => {
 // DELETE /api/bubbles/posts/:id - Delete post
 router.delete('/posts/:id', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pgPool.query(
+    const { rows } = await pool.query(
       'DELETE FROM bubble_posts WHERE id = $1 AND user_id = $2 RETURNING bubble_id',
       [req.params.id, req.user.id]
     );
@@ -562,7 +562,7 @@ router.delete('/posts/:id', requireAuth, async (req, res) => {
     }
 
     // Update bubble post count
-    await pgPool.query(
+    await pool.query(
       'UPDATE bubbles SET post_count = GREATEST(post_count - 1, 0) WHERE id = $1',
       [rows[0].bubble_id]
     );
@@ -579,7 +579,7 @@ router.delete('/posts/:id', requireAuth, async (req, res) => {
 // POST /api/bubbles/posts/:id/like - Toggle like
 router.post('/posts/:id/like', requireAuth, async (req, res) => {
   try {
-    const client = await pgPool.connect();
+    const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
@@ -668,7 +668,7 @@ router.get('/posts/:id/comments', requireAuth, async (req, res) => {
 
     query += ' ORDER BY c.created_at ASC';
 
-    const { rows } = await pgPool.query(query, params);
+    const { rows } = await pool.query(query, params);
     res.json({ items: rows });
   } catch (error) {
     console.error('Error fetching comments:', error);
@@ -685,7 +685,7 @@ router.post('/posts/:id/comments', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'content is required' });
     }
 
-    const client = await pgPool.connect();
+    const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
@@ -727,7 +727,7 @@ router.post('/posts/:id/comments', requireAuth, async (req, res) => {
       await client.query('COMMIT');
 
       // Fetch full comment with user data
-      const { rows: fullComments } = await pgPool.query(`
+      const { rows: fullComments } = await pool.query(`
         SELECT
           c.*,
           u.display_name,
@@ -758,7 +758,7 @@ router.put('/comments/:id', requireAuth, async (req, res) => {
   try {
     const { content } = req.body;
 
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       UPDATE bubble_post_comments
       SET content = $2, updated_at = NOW()
       WHERE id = $1 AND user_id = $3
@@ -779,7 +779,7 @@ router.put('/comments/:id', requireAuth, async (req, res) => {
 // DELETE /api/bubbles/comments/:id - Delete comment
 router.delete('/comments/:id', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pgPool.query(
+    const { rows } = await pool.query(
       'DELETE FROM bubble_post_comments WHERE id = $1 AND user_id = $2 RETURNING post_id',
       [req.params.id, req.user.id]
     );
@@ -789,7 +789,7 @@ router.delete('/comments/:id', requireAuth, async (req, res) => {
     }
 
     // Update post comment count
-    await pgPool.query(
+    await pool.query(
       'UPDATE bubble_posts SET comment_count = GREATEST(comment_count - 1, 0) WHERE id = $1',
       [rows[0].post_id]
     );
@@ -809,7 +809,7 @@ router.post('/posts/:id/chat-request', requireAuth, async (req, res) => {
     const { anonymous_id } = req.body;
 
     // Find the actual user ID from the anonymous mapping
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT user_id
       FROM bubble_anonymous_mappings
       JOIN bubble_posts ON bubble_posts.id = bubble_anonymous_mappings.post_id
@@ -824,7 +824,7 @@ router.post('/posts/:id/chat-request', requireAuth, async (req, res) => {
     const targetUserId = rows[0].user_id;
 
     // Check if chat already exists
-    const { rows: existing } = await pgPool.query(`
+    const { rows: existing } = await pool.query(`
       SELECT id, state
       FROM chats
       WHERE ((user_id_one = $1 AND user_id_two = $2)
@@ -841,7 +841,7 @@ router.post('/posts/:id/chat-request', requireAuth, async (req, res) => {
     }
 
     // Create new anonymous chat
-    const { rows: newChats } = await pgPool.query(`
+    const { rows: newChats } = await pool.query(`
       INSERT INTO chats (user_id_one, user_id_two, type, state)
       VALUES ($1, $2, 'anonymous', 'anonymous')
       RETURNING id
@@ -864,7 +864,7 @@ router.post('/posts/:id/report', requireAuth, async (req, res) => {
   try {
     const { reason, description } = req.body;
 
-    await pgPool.query(`
+    await pool.query(`
       INSERT INTO bubble_post_reports (post_id, reporter_id, reason, description)
       VALUES ($1, $2, $3, $4)
     `, [req.params.id, req.user.id, reason, description]);
@@ -887,7 +887,7 @@ router.get('/hashtags/trending', requireAuth, async (req, res) => {
     if (timeframe === '7d') interval = '7 days';
     if (timeframe === '30d') interval = '30 days';
 
-    const { rows } = await pgPool.query(`
+    const { rows } = await pool.query(`
       SELECT
         hashtag,
         post_count,
@@ -906,4 +906,4 @@ router.get('/hashtags/trending', requireAuth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
