@@ -5,14 +5,13 @@ import { useEffect, useState, useRef } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, TrendingUp, Hash, Settings, MessageCircle, SlidersHorizontal } from "lucide-react";
+import { Plus, TrendingUp, Hash, MessageCircle, SlidersHorizontal } from "lucide-react";
 import { useBubbleStore } from "@/lib/stores/bubble-store";
 import { BubblePostCard } from "@/components/bubbles/bubble-post-card";
 import { BubbleCreatePost } from "@/components/bubbles/bubble-create-post";
 import { BubblePostModal } from "@/components/bubbles/bubble-post-modal";
 import { BubblePreferencesModal } from "@/components/bubbles/bubble-preferences-modal";
 import type { BubblePost } from "@/lib/services/bubble-service";
-import { Bubble } from "@/lib/services/bubble-service";
 
 export default function UnifiedBubbleFeedPage() {
   const [selectedPost, setSelectedPost] = useState<BubblePost | null>(null);
@@ -104,7 +103,7 @@ export default function UnifiedBubbleFeedPage() {
     fetchUnifiedFeed();
   };
 
-  const handleBubbleSelect = (bubble: Bubble) => {
+  const handleBubbleSelect = (bubble: any) => {
     setSelectedBubbleId(bubble.id);
     setShowBubbleSelector(false);
   };
@@ -113,7 +112,7 @@ export default function UnifiedBubbleFeedPage() {
   const currentLoading = activeTab === 'feed' ? feedLoading : activeTab === 'trending' ? trendingLoading : loudestLoading;
 
   // Get visible bubbles for selector
-  const visibleBubbles = bubbles.filter(b => b.is_visible !== false && b.is_hidden !== true);
+  const visibleBubbles = bubbles.filter((b: any) => b.is_visible !== false && b.is_hidden !== true);
 
   return (
     <AppLayout>
@@ -126,7 +125,7 @@ export default function UnifiedBubbleFeedPage() {
                 <h1 className="text-xl font-bold">Bubbles Feed</h1>
                 <p className="text-sm text-gray-500">
                   {selectedBubbleId
-                    ? `Gefiltert: ${visibleBubbles.find(b => b.id === selectedBubbleId)?.name || 'Bubble'}`
+                    ? `Gefiltert: ${visibleBubbles.find((b: any) => b.id === selectedBubbleId)?.name || 'Bubble'}`
                     : 'Alle deine Bubbles'}
                 </p>
               </div>
@@ -137,7 +136,7 @@ export default function UnifiedBubbleFeedPage() {
                   onClick={() => setShowBubbleSelector(!showBubbleSelector)}
                 >
                   {selectedBubbleId
-                    ? visibleBubbles.find(b => b.id === selectedBubbleId)?.name || 'Filter'
+                    ? visibleBubbles.find((b: any) => b.id === selectedBubbleId)?.name || 'Filter'
                     : 'Filter'}
                 </Button>
                 <Button
@@ -165,7 +164,7 @@ export default function UnifiedBubbleFeedPage() {
                 >
                   Alle
                 </Button>
-                {visibleBubbles.map((bubble) => (
+                {visibleBubbles.map((bubble: any) => (
                   <Button
                     key={bubble.id}
                     variant={selectedBubbleId === bubble.id ? 'default' : 'outline'}
